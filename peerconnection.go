@@ -51,12 +51,12 @@ func (me *PeerConnection) AddTrack(track *MediaStreamTrack, streams ...*MediaStr
 	return sender, nil
 }
 
-func (me *PeerConnection) RemoveTrack(track *MediaStreamTrack) error {
+func (me *PeerConnection) RemoveTrack(sender *RtpSender) error {
 	var (
 		err C.raw_rtc_error_t
 	)
 
-	eno := (int)(C.PeerConnectionRemoveTrack(me.fd, track.fd, &err))
+	eno := (int)(C.PeerConnectionRemoveTrack(me.fd, sender.fd, &err))
 	if eno != 0 {
 		fmt.Printf("Failed to PeerConnectionRemoveTrack: name=%s, message=%s\n", C.GoString(err.name), C.GoString(err.message))
 		return fmt.Errorf("%s: %s", C.GoString(err.name), C.GoString(err.message))
@@ -195,6 +195,10 @@ func (me *PeerConnection) GetTransceivers() []*RtpTransceiver {
 		transceivers = append(transceivers, transceiver)
 	}
 	return transceivers
+}
+
+func (me *PeerConnection) GetStats() map[string]interface{} {
+	return nil
 }
 
 func (me *PeerConnection) Close() {

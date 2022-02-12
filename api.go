@@ -114,7 +114,7 @@ type RtpTransceiverInit struct {
 
 type PeerConnectionInterface interface {
 	AddTrack(track MediaStreamTrackInterface, streams ...MediaStreamInterface) (RtpSenderInterface, error)
-	RemoveTrack(track MediaStreamTrackInterface) error
+	RemoveTrack(sender RtpSenderInterface) error
 	AddTransceiver(kind string, init RtpTransceiverInit) (RtpTransceiverInterface, error)
 	CreateOffer(observer *CreateSessionDescriptionObserver)
 	CreateAnswer(observer *CreateSessionDescriptionObserver)
@@ -124,6 +124,7 @@ type PeerConnectionInterface interface {
 	GetReceivers() []RtpReceiverInterface
 	GetSenders() []RtpSenderInterface
 	GetTransceivers() []RtpTransceiverInterface
+	GetStats() map[string]interface{}
 	Close()
 
 	// OnSignalingChange     func(new_state string)
