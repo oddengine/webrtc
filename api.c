@@ -51,7 +51,7 @@ typedef void (*__rtp_receiver_get_stats_fptr__)(void *receiver, void *stats);
 typedef int (*__rtp_sender_set_track_fptr__)(void *sender, void *track);
 typedef void *(*__rtp_sender_get_track_fptr__)(void *sender);
 typedef void (*__rtp_sender_set_streams_fptr__)(void *sender, size_t size, const char **stream_ids);
-typedef void (*__rtp_sender_get_streams_fptr__)(void *sender, size_t *size, char **array);
+typedef void (*__rtp_sender_get_streams_fptr__)(void *sender, raw_array_t *dst);
 typedef void (*__rtp_sender_set_parameters_fptr__)(void *sender, void *parameters);
 typedef void (*__rtp_sender_get_parameters_fptr__)(void *sender, void *parameters);
 typedef void (*__rtp_sender_get_stats_fptr__)(void *sender, void *stats);
@@ -463,10 +463,10 @@ void RtpSenderSetStreams(void *sender, size_t size, const char **stream_ids)
     (*__rtp_sender_set_streams__)(sender, size, stream_ids);
 }
 
-void RtpSenderGetStreams(void *sender, size_t *size, char **array)
+void RtpSenderGetStreams(void *sender, raw_array_t *dst)
 {
     printf("===> RtpSenderGetStreams()\n");
-    (*__rtp_sender_get_streams__)(sender, size, array);
+    (*__rtp_sender_get_streams__)(sender, dst);
 }
 
 void RtpSenderSetParameters(void *sender, void *parameters)

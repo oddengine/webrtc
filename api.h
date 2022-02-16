@@ -1,11 +1,12 @@
 #ifndef WEBRTC_API_H_
 #define WEBRTC_API_H_
 
+#include "include/base.h"
 #include "include/callback.h"
-#include "include/session_description.h"
 #include "include/ice_candidate.h"
-#include "include/rtp_transceiver.h"
 #include "include/rtc_error.h"
+#include "include/rtp_transceiver.h"
+#include "include/session_description.h"
 
 int LoadLibrary(const char *file);
 
@@ -57,7 +58,7 @@ void RtpReceiverGetStats(void *receiver, void *stats);
 int RtpSenderSetTrack(void *sender, void *track);
 void *RtpSenderGetTrack(void *sender);
 void RtpSenderSetStreams(void *sender, size_t size, const char **stream_ids);
-void RtpSenderGetStreams(void *sender, size_t *size, char **array);
+void RtpSenderGetStreams(void *sender, raw_array_t *dst);
 void RtpSenderSetParameters(void *sender, void *parameters);
 void RtpSenderGetParameters(void *sender, void *parameters);
 void RtpSenderGetStats(void *sender, void *stats);

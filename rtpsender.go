@@ -49,14 +49,22 @@ func (me *RtpSender) SetStreams(stream_ids ...string) {
 
 func (me *RtpSender) Streams() []string {
 	var (
-		size       C.size_t = 8
-		array               = make([]*C.char, 8)
-		stream_ids          = make([]string, 0)
+		dst        C.raw_array_t
+		buf        = make([]unsafe.Pointer, 8)
+		stream_ids = make([]string, 0)
 	)
 
-	C.RtpSenderGetStreams(me.fd, &size, (**C.char)(&array[0]))
-	for i := 0; i < (int)(size); i++ {
-		id := C.GoString(array[i])
+	dst.size = 8
+	dst.elements = (*unsafe.Pointer)(&buf[0])
+
+	C.RtpSenderGetStreams(me.fd, &dst)
+	for i := 0; i < (int)(dst.size); i++ {
+		ptr := (unsafe.Pointer)(&buf[i])
+		cs := *(**C.char)(ptr)
+		defer func(cs *C.char) {
+			C.free(unsafe.Pointer(cs))
+		}(cs)
+		id := C.GoString(cs)
 		stream_ids = append(stream_ids, id)
 	}
 	return stream_ids
