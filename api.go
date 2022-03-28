@@ -2,7 +2,8 @@ package rawrtc
 
 /*
 #cgo CFLAGS : -g -I../../include
-#cgo LDFLAGS: -L../../lib
+#cgo linux LDFLAGS: -L../../lib -ldl
+#cgo windows LDFLAGS: -L../../lib
 
 #include "api.h"
 */
@@ -11,13 +12,13 @@ import (
 	"unsafe"
 )
 
-func LoadLibrary(path string) {
+func InitializeLibrary(path string) {
 	file := C.CString(path)
 	defer func() {
 		C.free(unsafe.Pointer(file))
 	}()
 
-	C.LoadRTCLibrary(file)
+	C.InitializeLibrary(file)
 }
 
 const (

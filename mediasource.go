@@ -2,7 +2,8 @@ package rawrtc
 
 /*
 #cgo CFLAGS : -g -I../../include
-#cgo LDFLAGS: -L../../lib -ldl
+#cgo linux LDFLAGS: -L../../lib -ldl
+#cgo windows LDFLAGS: -L../../lib
 
 #include "api.h"
 */

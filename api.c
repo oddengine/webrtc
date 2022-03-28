@@ -1,13 +1,19 @@
 #include "api.h"
-#ifdef _WIN32
-#include <Windows.h>
-#define dlsym GetProcAddress
-#else
-#include <dlfcn.h>
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
+
+#ifdef _WIN32
+#include <Windows.h>
+#define dlsym GetProcAddress
+#define dlopen(file, mode) LoadLibrary(file)
+#define dlerror GetLastError
+#else
+#include <dlfcn.h>
+#define HMODULE void *
+#endif
+
+HMODULE handle;
 
 typedef void *(*__create_peer_connection_factory_fptr__)(void *fd);
 typedef void *(*__create_peer_connection_fptr__)(void *factory, void *pc, raw_peer_connection_observer_t *cb);
@@ -61,11 +67,7 @@ typedef void (*__rtp_sender_get_streams_fptr__)(void *sender, raw_array_t *dst);
 typedef void (*__rtp_sender_set_parameters_fptr__)(void *sender, void *parameters);
 typedef void (*__rtp_sender_get_parameters_fptr__)(void *sender, void *parameters);
 typedef void (*__rtp_sender_get_stats_fptr__)(void *sender, void *stats);
-#ifdef _WIN32
-HINSTANCE handle;
-#else
-void *handle;
-#endif
+
 __create_peer_connection_factory_fptr__ __create_peer_connection_factory__;
 __create_peer_connection_fptr__ __create_peer_connection__;
 __create_audio_track_fptr__ __create_audio_track__;
@@ -138,23 +140,22 @@ raw_set_session_description_observer_t *__set_session_description_observer__;
 extern void __onsetsessiondescriptionsuccess__(void *observer);
 extern void __onsetsessiondescriptionfailure__(void *observer, const char *name, const char *message);
 
-int LoadRTCLibrary(const char *file)
+int InitializeLibrary(const char *file)
 {
-#ifdef _WIN32
-    handle = LoadLibrary(file);
-#else
     handle = dlopen(file, 1);
-#endif
     if (handle == NULL)
     {
+        printf("Failed to open library: file=%s, "
 #ifdef _WIN32
-        printf("Failed to open library: file=%s \n", file);
+               "eno=%d"
 #else
-        printf("Failed to open library: file=%s, err=%s\n", file, dlerror());
+               "err=%s"
 #endif
+               "\n",
+               file, dlerror());
         return -1;
     }
-    printf("OKOKOKOKOK\n");
+
     __create_peer_connection_factory__ = (__create_peer_connection_factory_fptr__)dlsym(handle, "CreatePeerConnectionFactory");
     __create_peer_connection__ = (__create_peer_connection_fptr__)dlsym(handle, "CreatePeerConnection");
     __create_audio_track__ = (__create_audio_track_fptr__)dlsym(handle, "CreateAudioTrack");
