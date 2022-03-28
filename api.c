@@ -1,5 +1,11 @@
 #include "api.h"
+#ifdef _WIN32
+#include <Windows.h>
+#define dlsym GetProcAddress
+#else
 #include <dlfcn.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -55,8 +61,11 @@ typedef void (*__rtp_sender_get_streams_fptr__)(void *sender, raw_array_t *dst);
 typedef void (*__rtp_sender_set_parameters_fptr__)(void *sender, void *parameters);
 typedef void (*__rtp_sender_get_parameters_fptr__)(void *sender, void *parameters);
 typedef void (*__rtp_sender_get_stats_fptr__)(void *sender, void *stats);
-
+#ifdef _WIN32
+HINSTANCE handle;
+#else
 void *handle;
+#endif
 __create_peer_connection_factory_fptr__ __create_peer_connection_factory__;
 __create_peer_connection_fptr__ __create_peer_connection__;
 __create_audio_track_fptr__ __create_audio_track__;
@@ -129,14 +138,23 @@ raw_set_session_description_observer_t *__set_session_description_observer__;
 extern void __onsetsessiondescriptionsuccess__(void *observer);
 extern void __onsetsessiondescriptionfailure__(void *observer, const char *name, const char *message);
 
-int LoadLibrary(const char *file)
+int LoadRTCLibrary(const char *file)
 {
+#ifdef _WIN32
+    handle = LoadLibrary(file);
+#else
     handle = dlopen(file, 1);
+#endif
     if (handle == NULL)
     {
+#ifdef _WIN32
+        printf("Failed to open library: file=%s \n", file);
+#else
         printf("Failed to open library: file=%s, err=%s\n", file, dlerror());
+#endif
         return -1;
     }
+    printf("OKOKOKOKOK\n");
     __create_peer_connection_factory__ = (__create_peer_connection_factory_fptr__)dlsym(handle, "CreatePeerConnectionFactory");
     __create_peer_connection__ = (__create_peer_connection_fptr__)dlsym(handle, "CreatePeerConnection");
     __create_audio_track__ = (__create_audio_track_fptr__)dlsym(handle, "CreateAudioTrack");

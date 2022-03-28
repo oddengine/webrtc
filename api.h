@@ -8,7 +8,7 @@
 #include "include/rtp_transceiver.h"
 #include "include/session_description.h"
 
-int LoadLibrary(const char *file);
+int LoadRTCLibrary(const char *file);
 
 void *CreatePeerConnectionFactory(void *fd);
 void *CreatePeerConnection(void *factory, void *fd);

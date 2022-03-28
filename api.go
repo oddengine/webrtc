@@ -2,7 +2,7 @@ package rawrtc
 
 /*
 #cgo CFLAGS : -g -I../../include
-#cgo LDFLAGS: -L../../lib -ldl
+#cgo LDFLAGS: -L../../lib
 
 #include "api.h"
 */
@@ -17,7 +17,7 @@ func LoadLibrary(path string) {
 		C.free(unsafe.Pointer(file))
 	}()
 
-	C.LoadLibrary(file)
+	C.LoadRTCLibrary(file)
 }
 
 const (
