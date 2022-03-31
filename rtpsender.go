@@ -9,7 +9,6 @@ package rawrtc
 */
 import "C"
 import (
-	"fmt"
 	"unsafe"
 )
 
@@ -24,7 +23,7 @@ func (me *RtpSender) Init() *RtpSender {
 func (me *RtpSender) SetTrack(track *MediaStreamTrack) bool {
 	eno := (int)(C.RtpSenderSetTrack(me.fd, track.fd))
 	if eno != 0 {
-		fmt.Printf("Failed to RtpSenderSetTrack\n")
+		logger_.Errorf("Failed to RtpSenderSetTrack.")
 		return false
 	}
 	return true
@@ -34,7 +33,7 @@ func (me *RtpSender) Track() *MediaStreamTrack {
 	track := new(MediaStreamTrack).Init()
 	track.fd = C.RtpSenderGetTrack(me.fd)
 	if track.fd == nil {
-		fmt.Printf("Failed to RtpSenderGetTrack\n")
+		logger_.Errorf("Failed to RtpSenderGetTrack.")
 		return nil
 	}
 	return track

@@ -1,8 +1,9 @@
 #ifndef WEBRTC_API_H_
 #define WEBRTC_API_H_
 
-#include "include/base.h"
-#include "include/callback.h"
+#include <string.h>
+
+#include "include/api.h"
 #include "include/ice_candidate.h"
 #include "include/rtc_error.h"
 #include "include/rtp_transceiver.h"

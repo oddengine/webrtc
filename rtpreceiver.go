@@ -9,7 +9,6 @@ package rawrtc
 */
 import "C"
 import (
-	"fmt"
 	"unsafe"
 )
 
@@ -25,7 +24,7 @@ func (me *RtpReceiver) Track() *MediaStreamTrack {
 	track := new(MediaStreamTrack).Init()
 	track.fd = C.RtpReceiverGetTrack(me.fd)
 	if track.fd == nil {
-		fmt.Printf("Failed to RtpReceiverGetTrack\n")
+		logger_.Errorf("Failed to RtpReceiverGetTrack.")
 		return nil
 	}
 	return track

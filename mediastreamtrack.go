@@ -9,7 +9,6 @@ package rawrtc
 */
 import "C"
 import (
-	"fmt"
 	"unsafe"
 )
 
@@ -53,7 +52,7 @@ func (me *MediaStreamTrack) GetSource() *MediaSource {
 	source := new(MediaSource).Init()
 	source.fd = C.MediaStreamTrackGetSource(me.fd)
 	if source.fd == nil {
-		fmt.Printf("Failed to MediaStreamTrackGetSource\n")
+		logger_.Errorf("Failed to MediaStreamTrackGetSource.")
 		return nil
 	}
 	return source

@@ -10,16 +10,9 @@ package rawrtc
 import "C"
 import (
 	"unsafe"
+
+	"gitlab.xthktech.cn/xthk-media/log"
 )
-
-func InitializeLibrary(path string) {
-	file := C.CString(path)
-	defer func() {
-		C.free(unsafe.Pointer(file))
-	}()
-
-	C.InitializeLibrary(file)
-}
 
 const (
 	TRACK_KIND_AUDIO = "audio"
@@ -44,6 +37,21 @@ const (
 	RTP_TRANSCEIVER_DIRECTION_RECVONLY = "recvonly"
 	RTP_TRANSCEIVER_DIRECTION_INACTIVE = "inactive"
 )
+
+var (
+	logger_ log.ILogger
+)
+
+func InitializeLibrary(path string, logger log.ILogger) int {
+	logger_ = logger
+
+	file := C.CString(path)
+	defer func() {
+		C.free(unsafe.Pointer(file))
+	}()
+
+	return int(C.InitializeLibrary(file))
+}
 
 type PeerConnectionFactoryInterface interface {
 	CreatePeerConnection(config RTCConfiguration) (PeerConnectionInterface, error)
@@ -236,5 +244,40 @@ func __onsetsessiondescriptionfailure__(observer unsafe.Pointer, name *C.char, m
 	ob := (*SetSessionDescriptionObserver)(observer)
 	if ob.OnFailure != nil {
 		ob.OnFailure(new(RTCError).Init(C.GoString(name), C.GoString(message)))
+	}
+}
+
+//export __trace__
+func __trace__(message *C.char) {
+	if logger_ != nil {
+		logger_.Trace(C.GoString(message))
+	}
+}
+
+//export __debug__
+func __debug__(n C.int, message *C.char) {
+	if logger_ != nil {
+		logger_.Debug(uint32(n), C.GoString(message))
+	}
+}
+
+//export __info__
+func __info__(message *C.char) {
+	if logger_ != nil {
+		logger_.Info(C.GoString(message))
+	}
+}
+
+//export __warn__
+func __warn__(message *C.char) {
+	if logger_ != nil {
+		logger_.Warn(C.GoString(message))
+	}
+}
+
+//export __error__
+func __error__(message *C.char) {
+	if logger_ != nil {
+		logger_.Error(C.GoString(message))
 	}
 }

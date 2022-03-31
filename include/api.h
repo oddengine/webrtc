@@ -1,7 +1,20 @@
-#ifndef EXAMPLES_RAWRTC_OBSERVER_H_
-#define EXAMPLES_RAWRTC_OBSERVER_H_
+#ifndef EXAMPLES_RAWRTC_API_H_
+#define EXAMPLES_RAWRTC_API_H_
 
 #include <stdlib.h>
+
+typedef struct {
+  size_t size;
+  void** elements;
+} raw_array_t;
+
+typedef struct {
+  void (*trace)(const char* message);
+  void (*debug)(int n, const char* message);
+  void (*info)(const char* message);
+  void (*warn)(const char* message);
+  void (*error)(const char* message);
+} raw_logger_t;
 
 typedef struct {
   void (*onsignalingchange)(void* observer, const char* new_state);
@@ -33,4 +46,4 @@ typedef struct {
   void (*onfailure)(void* observer, const char* name, const char* message);
 } raw_set_session_description_observer_t;
 
-#endif  // EXAMPLES_RAWRTC_OBSERVER_H_
+#endif  // EXAMPLES_RAWRTC_API_H_

@@ -40,7 +40,7 @@ func (me *PeerConnectionFactory) CreateAudioTrack(id string, source *MediaSource
 	track := new(MediaStreamTrack).Init()
 	track.fd = C.CreateAudioTrack(me.fd, unsafe.Pointer(track), track_id, source.fd)
 	if track.fd == nil {
-		fmt.Printf("Failed to CreateAudioTrack: id=%s\n", id)
+		logger_.Errorf("Failed to CreateAudioTrack: id=%s", id)
 		return nil, fmt.Errorf("unknown error occurred")
 	}
 	return track, nil
@@ -58,7 +58,7 @@ func (me *PeerConnectionFactory) CreateVideoTrack(id string, source *MediaSource
 	track := new(MediaStreamTrack).Init()
 	track.fd = C.CreateVideoTrack(me.fd, unsafe.Pointer(track), track_id, source.fd)
 	if track.fd == nil {
-		fmt.Printf("Failed to CreateVideoTrack: id=%s\n", id)
+		logger_.Errorf("Failed to CreateVideoTrack: id=%s", id)
 		return nil, fmt.Errorf("unknown error occurred")
 	}
 	return track, nil

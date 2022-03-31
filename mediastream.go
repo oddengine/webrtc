@@ -9,7 +9,6 @@ package rawrtc
 */
 import "C"
 import (
-	"fmt"
 	"unsafe"
 )
 
@@ -35,7 +34,7 @@ func (me *MediaStream) ID() string {
 func (me *MediaStream) AddTrack(track *MediaStreamTrack) bool {
 	eno := (int)(C.MediaStreamAddTrack(me.fd, track.fd))
 	if eno != 0 {
-		fmt.Printf("Failed to MediaStreamAddTrack\n")
+		logger_.Errorf("Failed to MediaStreamAddTrack.")
 		return false
 	}
 	return true
@@ -44,7 +43,7 @@ func (me *MediaStream) AddTrack(track *MediaStreamTrack) bool {
 func (me *MediaStream) RemoveTrack(track *MediaStreamTrack) bool {
 	eno := (int)(C.MediaStreamRemoveTrack(me.fd, track.fd))
 	if eno != 0 {
-		fmt.Printf("Failed to MediaStreamRemoveTrack\n")
+		logger_.Errorf("Failed to MediaStreamRemoveTrack.")
 		return false
 	}
 	return true
@@ -91,7 +90,7 @@ func (me *MediaStream) FindAudioTrack(id string) *MediaStreamTrack {
 	track := new(MediaStreamTrack).Init()
 	track.fd = C.MediaStreamFindAudioTrack(me.fd, track_id)
 	if track.fd == nil {
-		fmt.Printf("Failed to MediaStreamFindAudioTrack: id=%s\n", id)
+		logger_.Errorf("Failed to MediaStreamFindAudioTrack: id=%s", id)
 		return nil
 	}
 	return track
@@ -106,7 +105,7 @@ func (me *MediaStream) FindVideoTrack(id string) *MediaStreamTrack {
 	track := new(MediaStreamTrack).Init()
 	track.fd = C.MediaStreamFindVideoTrack(me.fd, track_id)
 	if track.fd == nil {
-		fmt.Printf("Failed to MediaStreamFindVideoTrack: id=%s\n", id)
+		logger_.Errorf("Failed to MediaStreamFindVideoTrack: id=%s", id)
 		return nil
 	}
 	return track
