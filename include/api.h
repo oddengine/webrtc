@@ -4,17 +4,18 @@
 #include <stdlib.h>
 
 typedef struct {
-  size_t size;
-  void** elements;
-} raw_array_t;
-
-typedef struct {
-  void (*trace)(const char* message);
-  void (*debug)(int n, const char* message);
-  void (*info)(const char* message);
-  void (*warn)(const char* message);
-  void (*error)(const char* message);
-} raw_logger_t;
+  char* directory;
+  char* filename;
+  int level;
+  struct {
+    int history;
+    int max_size;
+    struct {
+      int mode;  // 0: daily, 1: duration
+      int duration;
+    } schedule;
+  } rotation;
+} raw_logger_constraints_t;
 
 typedef struct {
   void (*onsignalingchange)(void* observer, const char* new_state);

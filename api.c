@@ -16,7 +16,7 @@
 
 HMODULE handle;
 
-typedef int (*__initialize_library_fptr__)(raw_logger_t *logger);
+typedef int (*__initialize_library_fptr__)(raw_logger_constraints_t *constraints);
 
 typedef void *(*__create_peer_connection_factory_fptr__)(void *fd);
 typedef void *(*__create_peer_connection_fptr__)(void *factory, void *pc, raw_peer_connection_observer_t *cb);
@@ -66,7 +66,7 @@ typedef void (*__rtp_receiver_get_stats_fptr__)(void *receiver, void *stats);
 typedef int (*__rtp_sender_set_track_fptr__)(void *sender, void *track);
 typedef void *(*__rtp_sender_get_track_fptr__)(void *sender);
 typedef void (*__rtp_sender_set_streams_fptr__)(void *sender, size_t size, const char **stream_ids);
-typedef void (*__rtp_sender_get_streams_fptr__)(void *sender, raw_array_t *dst);
+typedef void (*__rtp_sender_get_streams_fptr__)(void *sender, size_t *size, void **array);
 typedef void (*__rtp_sender_set_parameters_fptr__)(void *sender, void *parameters);
 typedef void (*__rtp_sender_get_parameters_fptr__)(void *sender, void *parameters);
 typedef void (*__rtp_sender_get_stats_fptr__)(void *sender, void *stats);
@@ -145,32 +145,19 @@ raw_set_session_description_observer_t *__set_session_description_observer__;
 extern void __onsetsessiondescriptionsuccess__(void *observer);
 extern void __onsetsessiondescriptionfailure__(void *observer, const char *name, const char *message);
 
-raw_logger_t *__logger__;
-extern void __trace__(const char *message);
-extern void __debug__(int n, const char *message);
-extern void __info__(const char *message);
-extern void __warn__(const char *message);
-extern void __error__(const char *message);
-
-void __tracef__(const char *format, ...);
-void __debugf__(int n, const char *format, ...);
-void __infof__(const char *format, ...);
-void __warnf__(const char *format, ...);
-void __errorf__(const char *format, ...);
-
-int InitializeLibrary(const char *file)
+int InitializeLibrary(const char *file, raw_logger_constraints_t *logger)
 {
     handle = dlopen(file, 1);
     if (handle == NULL)
     {
-        __errorf__("Failed to open library: file=%s, "
+        printf("Failed to open library: file=%s, "
 #ifdef _WIN32
-                   "eno=%d"
+               "eno=%d"
 #else
-                   "err=%s"
+               "err=%s"
 #endif
-                   "\n",
-                   file, dlerror());
+               "\n",
+               file, dlerror());
         return -1;
     }
 
@@ -248,14 +235,7 @@ int InitializeLibrary(const char *file)
     __set_session_description_observer__->onsuccess = __onsetsessiondescriptionsuccess__;
     __set_session_description_observer__->onfailure = __onsetsessiondescriptionfailure__;
 
-    __logger__ = malloc(sizeof(raw_logger_t));
-    __logger__->trace = __trace__;
-    __logger__->debug = __debug__;
-    __logger__->info = __info__;
-    __logger__->warn = __warn__;
-    __logger__->error = __error__;
-    // return (*__initialize_library__)(__logger__);
-    return 0;
+    return (*__initialize_library__)(logger);
 }
 
 void *CreatePeerConnectionFactory(void *fd)
@@ -510,10 +490,10 @@ void RtpSenderSetStreams(void *sender, size_t size, const char **stream_ids)
     (*__rtp_sender_set_streams__)(sender, size, stream_ids);
 }
 
-void RtpSenderGetStreams(void *sender, raw_array_t *dst)
+void RtpSenderGetStreams(void *sender, size_t *size, void **array)
 {
     // __debugf__(6, "===> RtpSenderGetStreams()");
-    (*__rtp_sender_get_streams__)(sender, dst);
+    (*__rtp_sender_get_streams__)(sender, size, array);
 }
 
 void RtpSenderSetParameters(void *sender, void *parameters)
@@ -532,47 +512,4 @@ void RtpSenderGetStats(void *sender, void *stats)
 {
     // __debugf__(6, "===> RtpSenderGetStats()");
     (*__rtp_sender_get_stats__)(sender, stats);
-}
-
-#define __LOGGER_MAX_LEN__ 65536
-#define __sprintf__(dst, format)                              \
-    va_list args;                                             \
-    va_start(args, format);                                   \
-    int i = vsnprintf(dst, __LOGGER_MAX_LEN__, format, args); \
-    va_end(args);                                             \
-    dst[i] = '\0';
-
-void __tracef__(const char *format, ...)
-{
-    char dst[__LOGGER_MAX_LEN__];
-    __sprintf__(dst, format);
-    __trace__(dst);
-}
-
-void __debugf__(int n, const char *format, ...)
-{
-    char dst[__LOGGER_MAX_LEN__];
-    __sprintf__(dst, format);
-    __debug__(n, dst);
-}
-
-void __infof__(const char *format, ...)
-{
-    char dst[__LOGGER_MAX_LEN__];
-    __sprintf__(dst, format);
-    __info__(dst);
-}
-
-void __warnf__(const char *format, ...)
-{
-    char dst[__LOGGER_MAX_LEN__];
-    __sprintf__(dst, format);
-    __warn__(dst);
-}
-
-void __errorf__(const char *format, ...)
-{
-    char dst[__LOGGER_MAX_LEN__];
-    __sprintf__(dst, format);
-    __error__(dst);
 }

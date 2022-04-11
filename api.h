@@ -9,7 +9,7 @@
 #include "include/rtp_transceiver.h"
 #include "include/session_description.h"
 
-int InitializeLibrary(const char *file);
+int InitializeLibrary(const char *file, raw_logger_constraints_t *logger);
 
 void *CreatePeerConnectionFactory(void *fd);
 void *CreatePeerConnection(void *factory, void *fd);
@@ -59,7 +59,7 @@ void RtpReceiverGetStats(void *receiver, void *stats);
 int RtpSenderSetTrack(void *sender, void *track);
 void *RtpSenderGetTrack(void *sender);
 void RtpSenderSetStreams(void *sender, size_t size, const char **stream_ids);
-void RtpSenderGetStreams(void *sender, raw_array_t *dst);
+void RtpSenderGetStreams(void *sender, size_t *size, void **array);
 void RtpSenderSetParameters(void *sender, void *parameters);
 void RtpSenderGetParameters(void *sender, void *parameters);
 void RtpSenderGetStats(void *sender, void *stats);

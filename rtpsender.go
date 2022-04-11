@@ -23,7 +23,7 @@ func (me *RtpSender) Init() *RtpSender {
 func (me *RtpSender) SetTrack(track *MediaStreamTrack) bool {
 	eno := (int)(C.RtpSenderSetTrack(me.fd, track.fd))
 	if eno != 0 {
-		logger_.Errorf("Failed to RtpSenderSetTrack.")
+		// logger_.Errorf("Failed to RtpSenderSetTrack.")
 		return false
 	}
 	return true
@@ -33,7 +33,7 @@ func (me *RtpSender) Track() *MediaStreamTrack {
 	track := new(MediaStreamTrack).Init()
 	track.fd = C.RtpSenderGetTrack(me.fd)
 	if track.fd == nil {
-		logger_.Errorf("Failed to RtpSenderGetTrack.")
+		// logger_.Errorf("Failed to RtpSenderGetTrack.")
 		return nil
 	}
 	return track
@@ -49,22 +49,19 @@ func (me *RtpSender) SetStreams(stream_ids ...string) {
 
 func (me *RtpSender) Streams() []string {
 	var (
-		dst        C.raw_array_t
-		buf        = make([]unsafe.Pointer, 8)
-		stream_ids = make([]string, 0)
+		size       C.size_t = 8
+		array               = make([]unsafe.Pointer, 8)
+		stream_ids          = make([]string, 0)
 	)
 
-	dst.size = 8
-	dst.elements = (*unsafe.Pointer)(&buf[0])
+	C.RtpSenderGetStreams(me.fd, &size, (*unsafe.Pointer)(&array[0]))
+	for i := 0; i < int(size); i++ {
+		item := (*C.char)(array[i])
+		defer func(item *C.char) {
+			C.free(unsafe.Pointer(item))
+		}(item)
 
-	C.RtpSenderGetStreams(me.fd, &dst)
-	for i := 0; i < (int)(dst.size); i++ {
-		ptr := (unsafe.Pointer)(&buf[i])
-		cs := *(**C.char)(ptr)
-		defer func(cs *C.char) {
-			C.free(unsafe.Pointer(cs))
-		}(cs)
-		id := C.GoString(cs)
+		id := C.GoString(item)
 		stream_ids = append(stream_ids, id)
 	}
 	return stream_ids

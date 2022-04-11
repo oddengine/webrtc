@@ -24,7 +24,7 @@ func (me *RtpReceiver) Track() *MediaStreamTrack {
 	track := new(MediaStreamTrack).Init()
 	track.fd = C.RtpReceiverGetTrack(me.fd)
 	if track.fd == nil {
-		logger_.Errorf("Failed to RtpReceiverGetTrack.")
+		// logger_.Errorf("Failed to RtpReceiverGetTrack.")
 		return nil
 	}
 	return track
@@ -38,7 +38,7 @@ func (me *RtpReceiver) Streams() []*MediaStream {
 	)
 
 	C.RtpReceiverGetStreams(me.fd, &size, (*unsafe.Pointer)(&array[0]))
-	for i := 0; i < (int)(size); i++ {
+	for i := 0; i < int(size); i++ {
 		stream := new(MediaStream).Init()
 		stream.fd = array[i]
 		streams = append(streams, stream)

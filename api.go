@@ -9,9 +9,9 @@ package rawrtc
 */
 import "C"
 import (
+	"encoding/xml"
+	"fmt"
 	"unsafe"
-
-	"gitlab.xthktech.cn/xthk-media/log"
 )
 
 const (
@@ -38,19 +38,41 @@ const (
 	RTP_TRANSCEIVER_DIRECTION_INACTIVE = "inactive"
 )
 
-var (
-	logger_ log.ILogger
-)
-
-func InitializeLibrary(path string, logger log.ILogger) int {
-	logger_ = logger
-
+func InitializeLibrary(path string, logger LoggerConstraints) error {
 	file := C.CString(path)
 	defer func() {
 		C.free(unsafe.Pointer(file))
 	}()
 
-	return int(C.InitializeLibrary(file))
+	var constraints C.raw_logger_constraints_t
+	constraints.directory = C.CString(logger.Directory)
+	constraints.filename = C.CString(logger.FileName)
+	constraints.level = 0x0FFF
+	constraints.rotation.max_size = C.int(logger.Rotation.MaxSize * 1024)
+	constraints.rotation.schedule.mode = 0
+	constraints.rotation.schedule.duration = 0
+	constraints.rotation.history = C.int(logger.Rotation.History)
+
+	eno := int(C.InitializeLibrary(file, &constraints))
+	if eno != 0 {
+		return fmt.Errorf("error %d", eno)
+	}
+	return nil
+}
+
+type LoggerConstraints struct {
+	Logger    xml.Name `xml:""`
+	Directory string   `xml:""`
+	FileName  string   `xml:""`
+	Level     string   `xml:""`
+	Rotation  struct {
+		MaxSize  int64 `xml:""`
+		Schedule struct {
+			Type     string `xml:"type,attr"`
+			Duration string `xml:",innerxml"`
+		} `xml:""`
+		History int `xml:""`
+	} `xml:""`
 }
 
 type PeerConnectionFactoryInterface interface {
@@ -244,40 +266,5 @@ func __onsetsessiondescriptionfailure__(observer unsafe.Pointer, name *C.char, m
 	ob := (*SetSessionDescriptionObserver)(observer)
 	if ob.OnFailure != nil {
 		ob.OnFailure(new(RTCError).Init(C.GoString(name), C.GoString(message)))
-	}
-}
-
-//export __trace__
-func __trace__(message *C.char) {
-	if logger_ != nil {
-		logger_.Trace(C.GoString(message))
-	}
-}
-
-//export __debug__
-func __debug__(n C.int, message *C.char) {
-	if logger_ != nil {
-		logger_.Debug(uint32(n), C.GoString(message))
-	}
-}
-
-//export __info__
-func __info__(message *C.char) {
-	if logger_ != nil {
-		logger_.Info(C.GoString(message))
-	}
-}
-
-//export __warn__
-func __warn__(message *C.char) {
-	if logger_ != nil {
-		logger_.Warn(C.GoString(message))
-	}
-}
-
-//export __error__
-func __error__(message *C.char) {
-	if logger_ != nil {
-		logger_.Error(C.GoString(message))
 	}
 }
