@@ -4,8 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "log/log.h"
-
 #ifdef _WIN32
 #include <Windows.h>
 #define dlsym GetProcAddress
@@ -19,6 +17,14 @@
 HMODULE handle;
 
 typedef int (*__initialize_library_fptr__)();
+
+typedef void *(*__create_default_logger_factory_fptr__)(void *fd, void *out, int level);
+typedef void *(*__create_default_logger_fptr__)(void *fd, void *factory, const char *scope);
+typedef void *(*__create_default_writer_fptr__)(void *fd, raw_default_writer_constraints_t *constraints);
+
+typedef int (*__writer_open_fptr__)(void *writer, const char *path);
+typedef int (*__writer_write_fptr__)(void *writer, const char *message, size_t size);
+typedef int (*__writer_close_fptr__)(void *writer);
 
 typedef void *(*__create_peer_connection_factory_fptr__)(void *fd);
 typedef void *(*__create_peer_connection_fptr__)(void *factory, void *pc, raw_peer_connection_observer_t *cb);
@@ -75,13 +81,13 @@ typedef void (*__rtp_sender_get_stats_fptr__)(void *sender, void *stats);
 
 __initialize_library_fptr__ __initialize_library__;
 
-extern __create_default_logger_factory_fptr__ __create_default_logger_factory__;
-extern __create_default_logger_fptr__ __create_default_logger__;
-extern __create_default_writer_fptr__ __create_default_writer__;
+__create_default_logger_factory_fptr__ __create_default_logger_factory__;
+__create_default_logger_fptr__ __create_default_logger__;
+__create_default_writer_fptr__ __create_default_writer__;
 
-extern __writer_open_fptr__ __writer_open__;
-extern __writer_write_fptr__ __writer_write__;
-extern __writer_close_fptr__ __writer_close__;
+__writer_open_fptr__ __writer_open__;
+__writer_write_fptr__ __writer_write__;
+__writer_close_fptr__ __writer_close__;
 
 __create_peer_connection_factory_fptr__ __create_peer_connection_factory__;
 __create_peer_connection_fptr__ __create_peer_connection__;
@@ -254,6 +260,42 @@ int InitializeLibrary(const char *file)
     __set_session_description_observer__->onfailure = __onsetsessiondescriptionfailure__;
 
     return __initialize_library__();
+}
+
+void *CreateDefaultLoggerFactory(void *fd, void *out, int level)
+{
+    // __debugf__(6, "===> CreateDefaultLoggerFactory()");
+    return __create_default_logger_factory__(fd, out, level);
+}
+
+void *CreateDefaultLogger(void *fd, void *factory, const char *scope)
+{
+    // __debugf__(6, "===> CreateDefaultLogger()");
+    return __create_default_logger__(fd, factory, scope);
+}
+
+void *CreateDefaultWriter(void *fd, raw_default_writer_constraints_t *constraints)
+{
+    // __debugf__(6, "===> CreateDefaultWriter()");
+    return __create_default_writer__(fd, constraints);
+}
+
+int WriterOpen(void *writer, const char *path)
+{
+    // __debugf__(6, "===> WriterOpen()");
+    return __writer_open__(writer, path);
+}
+
+int WriterWrite(void *writer, const char *message, size_t size)
+{
+    // __debugf__(6, "===> WriterWrite()");
+    return __writer_write__(writer, message, size);
+}
+
+int WriterClose(void *writer)
+{
+    // __debugf__(6, "===> WriterClose()");
+    return __writer_close__(writer);
 }
 
 void *CreatePeerConnectionFactory(void *fd)

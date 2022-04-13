@@ -3,13 +3,21 @@
 
 #include <stdlib.h>
 
-#ifndef __dllexport__
 #ifdef _WIN32
 #define __dllexport__ __declspec(dllexport)
 #else
 #define __dllexport__
 #endif
-#endif
+
+typedef struct {
+  struct {
+    int maxsize;
+  } rotation;
+} raw_default_writer_constraints_t;
+
+typedef struct {
+  void (*onresize)();
+} raw_default_writer_observer_t;
 
 typedef struct {
   void (*onsignalingchange)(void* observer, const char* new_state);

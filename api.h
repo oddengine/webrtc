@@ -4,13 +4,20 @@
 #include <string.h>
 
 #include "include/api.h"
-#include "include/log.h"
 #include "include/ice_candidate.h"
 #include "include/rtc_error.h"
 #include "include/rtp_transceiver.h"
 #include "include/session_description.h"
 
 int InitializeLibrary(const char *file);
+
+void *CreateDefaultLoggerFactory(void *fd, void *out, int level);
+void *CreateDefaultLogger(void *fd, void *factory, const char *scope);
+void *CreateDefaultWriter(void *fd, raw_default_writer_constraints_t *constraints);
+
+int WriterOpen(void *writer, const char *path);
+int WriterWrite(void *writer, const char *message, size_t size);
+int WriterClose(void *writer);
 
 void *CreatePeerConnectionFactory(void *fd);
 void *CreatePeerConnection(void *factory, void *fd);

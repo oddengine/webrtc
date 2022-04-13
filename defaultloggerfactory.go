@@ -1,11 +1,11 @@
-package log
+package rawrtc
 
 /*
-#cgo CFLAGS : -g -I../../../include
-#cgo linux LDFLAGS: -L../../../lib -ldl
+#cgo CFLAGS : -g -I../../include
+#cgo linux LDFLAGS: -L../../lib -ldl
 #cgo windows LDFLAGS: -L../../../lib
 
-#include "log.h"
+#include "api.h"
 */
 import "C"
 import (
@@ -13,7 +13,7 @@ import (
 	"strings"
 	"unsafe"
 
-	"gitlab.xthktech.cn/xthk-media/rawrtc/log/level"
+	"gitlab.xthktech.cn/xthk-media/rawrtc/level"
 )
 
 // DefaultLoggerFactory creates new DefaultLogger.

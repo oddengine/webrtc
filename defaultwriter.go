@@ -1,11 +1,11 @@
-package log
+package rawrtc
 
 /*
-#cgo CFLAGS : -g -I../../../include
-#cgo linux LDFLAGS: -L../../../lib -ldl
-#cgo windows LDFLAGS: -L../../../lib
+#cgo CFLAGS : -g -I../../include
+#cgo linux LDFLAGS: -L../../lib -ldl
+#cgo windows LDFLAGS: -L../../lib
 
-#include "log.h"
+#include "api.h"
 */
 import "C"
 import (
@@ -16,7 +16,7 @@ import (
 	"time"
 	"unsafe"
 
-	"gitlab.xthktech.cn/xthk-media/rawrtc/log/utils"
+	"gitlab.xthktech.cn/xthk-media/rawrtc/utils"
 )
 
 // Schedule Types.

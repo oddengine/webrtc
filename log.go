@@ -1,4 +1,4 @@
-package log
+package rawrtc
 
 // ILogger is the basic logger interface
 type ILogger interface {
@@ -31,45 +31,40 @@ func Tracef(format string, args ...interface{}) {
 
 // Debug emits the preformatted message if the logger is at or below debug-level
 func Debug(n uint32, s string) {
-	std.Debug(n, s)
+	std.Debug(n, s+"\n")
 }
 
 // Debugf formats and emits a message if the logger is at or below debug-level
 func Debugf(n uint32, format string, args ...interface{}) {
-	std.Debugf(n, format, args...)
+	std.Debugf(n, format+"\n", args...)
 }
 
 // Info emits the preformatted message if the logger is at or below info-level
 func Info(s string) {
-	std.Info(s)
+	std.Info(s + "\n")
 }
 
 // Infof formats and emits a message if the logger is at or below info-level
 func Infof(format string, args ...interface{}) {
-	std.Infof(format, args...)
+	std.Infof(format+"\n", args...)
 }
 
 // Warn emits the preformatted message if the logger is at or below warn-level
 func Warn(s string) {
-	std.Warn(s)
+	std.Warn(s + "\n")
 }
 
 // Warnf formats and emits a message if the logger is at or below warn-level
 func Warnf(format string, args ...interface{}) {
-	std.Warnf(format, args...)
+	std.Warnf(format+"\n", args...)
 }
 
 // Error emits the preformatted message if the logger is at or below error-level
 func Error(s string) {
-	std.Error(s)
+	std.Error(s + "\n")
 }
 
 // Errorf formats and emits a message if the logger is at or below error-level
 func Errorf(format string, args ...interface{}) {
-	std.Errorf(format, args...)
+	std.Errorf(format+"\n", args...)
 }
-
-//export __onloggerrotate__
-// func __onloggerrotate__() {
-
-// }

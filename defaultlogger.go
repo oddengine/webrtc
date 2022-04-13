@@ -1,4 +1,4 @@
-package log
+package rawrtc
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"sync"
 	"unsafe"
 
-	"gitlab.xthktech.cn/xthk-media/rawrtc/log/level"
+	"gitlab.xthktech.cn/xthk-media/rawrtc/level"
 )
 
 var (

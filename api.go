@@ -11,8 +11,6 @@ import "C"
 import (
 	"fmt"
 	"unsafe"
-
-	"gitlab.xthktech.cn/xthk-media/rawrtc/log"
 )
 
 const (
@@ -40,11 +38,11 @@ const (
 )
 
 var (
-	factory log.ILoggerFactory
-	logger  log.ILogger
+	factory ILoggerFactory
+	logger  ILogger
 )
 
-func InitializeLibrary(path string, constraints *log.DefaultWriterConstraints) error {
+func InitializeLibrary(path string, constraints *DefaultWriterConstraints) error {
 	file := C.CString(path)
 	defer func() {
 		C.free(unsafe.Pointer(file))
@@ -52,11 +50,11 @@ func InitializeLibrary(path string, constraints *log.DefaultWriterConstraints) e
 
 	eno := int(C.InitializeLibrary(file))
 	if eno != 0 {
-		log.Errorf("Failed to initialize library: %d", eno)
+		Errorf("Failed to initialize library: %d", eno)
 		return fmt.Errorf("error %d", eno)
 	}
 
-	factory = log.NewDefaultLoggerFactory(constraints)
+	factory = NewDefaultLoggerFactory(constraints)
 	logger = factory.NewLogger("RTC")
 	return nil
 }
