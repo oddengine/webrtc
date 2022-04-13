@@ -3,6 +3,14 @@
 
 #include <stdlib.h>
 
+#ifndef __dllexport__
+#ifdef _WIN32
+#define __dllexport__ __declspec(dllexport)
+#else
+#define __dllexport__
+#endif
+#endif
+
 typedef struct {
   struct {
     int maxsize;

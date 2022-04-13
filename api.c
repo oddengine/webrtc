@@ -253,281 +253,281 @@ int InitializeLibrary(const char *file)
     __set_session_description_observer__->onsuccess = __onsetsessiondescriptionsuccess__;
     __set_session_description_observer__->onfailure = __onsetsessiondescriptionfailure__;
 
-    return (*__initialize_library__)();
+    return __initialize_library__();
 }
 
 void *CreatePeerConnectionFactory(void *fd)
 {
     // __debugf__(6, "===> CreatePeerConnectionFactory()");
-    return (*__create_peer_connection_factory__)(fd);
+    return __create_peer_connection_factory__(fd);
 }
 
 void *CreatePeerConnection(void *factory, void *pc)
 {
     // __debugf__(6, "===> CreatePeerConnection()");
-    return (*__create_peer_connection__)(factory, pc, __peer_connection_observer__);
+    return __create_peer_connection__(factory, pc, __peer_connection_observer__);
 }
 
 void *CreateAudioTrack(void *factory, void *track, const char *id, void *source)
 {
     // __debugf__(6, "===> CreateAudioTrack(%s)", id);
-    return (*__create_audio_track__)(factory, track, id, source);
+    return __create_audio_track__(factory, track, id, source);
 }
 
 void *CreateVideoTrack(void *factory, void *track, const char *id, void *source)
 {
     // __debugf__(6, "===> CreateVideoTrack(%s)", id);
-    return (*__create_video_track__)(factory, track, id, source);
+    return __create_video_track__(factory, track, id, source);
 }
 
 void *PeerConnectionAddTrack(void *pc, void *track, size_t size, void **streams, raw_rtc_error_t *err)
 {
     // __debugf__(6, "===> PeerConnectionAddTrack()");
-    return (*__peer_connection_add_track__)(pc, track, size, streams, err);
+    return __peer_connection_add_track__(pc, track, size, streams, err);
 }
 
 int PeerConnectionRemoveTrack(void *pc, void *sender, raw_rtc_error_t *err)
 {
     // __debugf__(6, "===> PeerConnectionRemoveTrack()");
-    return (*__peer_connection_remove_track__)(pc, sender, err);
+    return __peer_connection_remove_track__(pc, sender, err);
 }
 
 void *PeerConnectionAddTransceiver(void *pc, const char *media_type, raw_rtp_transceiver_init_t *init, raw_rtc_error_t *err)
 {
     // __debugf__(6, "===> PeerConnectionAddTransceiver(%s)", media_type);
-    return (*__peer_connection_add_transceiver__)(pc, media_type, init, err);
+    return __peer_connection_add_transceiver__(pc, media_type, init, err);
 }
 
 void PeerConnectionCreateOffer(void *pc, void *observer)
 {
     // __debugf__(6, "===> PeerConnectionCreateOffer()");
-    (*__peer_connection_create_offer__)(pc, observer, __create_session_description_observer__);
+    __peer_connection_create_offer__(pc, observer, __create_session_description_observer__);
 }
 
 void PeerConnectionCreateAnswer(void *pc, void *observer)
 {
     // __debugf__(6, "===> PeerConnectionCreateAnswer()");
-    (*__peer_connection_create_answer__)(pc, observer, __create_session_description_observer__);
+    __peer_connection_create_answer__(pc, observer, __create_session_description_observer__);
 }
 
 void PeerConnectionSetLocalDescription(void *pc, void *observer, raw_session_description_t *desc)
 {
     // __debugf__(6, "===> PeerConnectionSetLocalDescription(type=%s, sdp=\n%s", desc->typ, desc->sdp);
-    (*__peer_connection_set_local_description__)(pc, observer, __set_session_description_observer__, desc);
+    __peer_connection_set_local_description__(pc, observer, __set_session_description_observer__, desc);
 }
 
 void PeerConnectionSetRemoteDescription(void *pc, void *observer, raw_session_description_t *desc)
 {
     // __debugf__(6, "===> PeerConnectionSetRemoteDescription(type=%s, sdp=\n%s", desc->typ, desc->sdp);
-    (*__peer_connection_set_remote_description__)(pc, observer, __set_session_description_observer__, desc);
+    __peer_connection_set_remote_description__(pc, observer, __set_session_description_observer__, desc);
 }
 
 int PeerConnectionAddIceCandidate(void *pc, raw_ice_candidate_t *candidate, raw_rtc_error_t *err)
 {
     // __debugf__(6, "===> PeerConnectionAddIceCandidate(%s)", candidate->candidate);
-    return (*__peer_connection_add_ice_candidate__)(pc, candidate, err);
+    return __peer_connection_add_ice_candidate__(pc, candidate, err);
 }
 
 void PeerConnectionGetReceivers(void *pc, size_t *size, void **array)
 {
     // __debugf__(6, "===> PeerConnectionGetReceivers()");
-    (*__peer_connection_get_receivers__)(pc, size, array);
+    __peer_connection_get_receivers__(pc, size, array);
 }
 
 void PeerConnectionGetSenders(void *pc, size_t *size, void **array)
 {
     // __debugf__(6, "===> PeerConnectionGetSenders()");
-    (*__peer_connection_get_senders__)(pc, size, array);
+    __peer_connection_get_senders__(pc, size, array);
 }
 
 void PeerConnectionGetTransceivers(void *pc, size_t *size, void **array)
 {
     // __debugf__(6, "===> PeerConnectionGetTransceivers()");
-    (*__peer_connection_get_transceivers__)(pc, size, array);
+    __peer_connection_get_transceivers__(pc, size, array);
 }
 
 void PeerConnectionClose(void *pc)
 {
     // __debugf__(6, "===> PeerConnectionClose()");
-    (*__peer_connection_close__)(pc);
+    __peer_connection_close__(pc);
 }
 
 const char *MediaStreamGetID(void *stream)
 {
     // __debugf__(6, "===> MediaStreamGetID()");
-    return (*__media_stream_get_id__)(stream);
+    return __media_stream_get_id__(stream);
 }
 
 int MediaStreamAddTrack(void *stream, void *track)
 {
     // __debugf__(6, "===> MediaStreamAddTrack()");
-    return (*__media_stream_add_track__)(stream, track);
+    return __media_stream_add_track__(stream, track);
 }
 
 int MediaStreamRemoveTrack(void *stream, void *track)
 {
     // __debugf__(6, "===> MediaStreamRemoveTrack()");
-    return (*__media_stream_remove_track__)(stream, track);
+    return __media_stream_remove_track__(stream, track);
 }
 
 void MediaStreamGetAudioTracks(void *stream, size_t *size, void **array)
 {
     // __debugf__(6, "===> MediaStreamGetAudioTracks()");
-    (*__media_stream_get_audio_tracks__)(stream, size, array);
+    __media_stream_get_audio_tracks__(stream, size, array);
 }
 
 void MediaStreamGetVideoTracks(void *stream, size_t *size, void **array)
 {
     // __debugf__(6, "===> MediaStreamGetVideoTracks()");
-    (*__media_stream_get_video_tracks__)(stream, size, array);
+    __media_stream_get_video_tracks__(stream, size, array);
 }
 
 void *MediaStreamFindAudioTrack(void *stream, const char *id)
 {
     // __debugf__(6, "===> MediaStreamFindAudioTrack(%s)", id);
-    return (*__media_stream_find_audio_track__)(stream, id);
+    return __media_stream_find_audio_track__(stream, id);
 }
 
 void *MediaStreamFindVideoTrack(void *stream, const char *id)
 {
     // __debugf__(6, "===> MediaStreamFindVideoTrack(%s)", id);
-    return (*__media_stream_find_video_track__)(stream, id);
+    return __media_stream_find_video_track__(stream, id);
 }
 
 const char *MediaStreamTrackGetID(void *track)
 {
     // __debugf__(6, "===> MediaStreamTrackGetID()");
-    return (*__media_stream_track_get_id__)(track);
+    return __media_stream_track_get_id__(track);
 }
 
 const char *MediaStreamTrackGetKind(void *track)
 {
     // __debugf__(6, "===> MediaStreamTrackGetKind()");
-    return (*__media_stream_track_get_kind__)(track);
+    return __media_stream_track_get_kind__(track);
 }
 
 int MediaStreamTrackGetMuted(void *track)
 {
     // __debugf__(6, "===> MediaStreamTrackGetMuted()");
-    return (*__media_stream_track_get_muted__)(track);
+    return __media_stream_track_get_muted__(track);
 }
 
 const char *MediaStreamTrackGetState(void *track)
 {
     // __debugf__(6, "===> MediaStreamTrackGetState()");
-    return (*__media_stream_track_get_state__)(track);
+    return __media_stream_track_get_state__(track);
 }
 
 void *MediaStreamTrackGetSource(void *track)
 {
     // __debugf__(6, "===> MediaStreamTrackGetSource()");
-    return (*__media_stream_track_get_source__)(track);
+    return __media_stream_track_get_source__(track);
 }
 
 void MediaStreamTrackStop(void *track)
 {
     // __debugf__(6, "===> MediaStreamTrackStop()");
-    (*__media_stream_track_stop__)(track);
+    __media_stream_track_stop__(track);
 }
 
 const char *RtpTransceiverGetDirection(void *transceiver)
 {
     // __debugf__(6, "===> RtpTransceiverGetDirection()");
-    return (*__rtp_transceiver_get_direction__)(transceiver);
+    return __rtp_transceiver_get_direction__(transceiver);
 }
 
 const char *RtpTransceiverGetMid(void *transceiver)
 {
     // __debugf__(6, "===> RtpTransceiverGetMid()");
-    return (*__rtp_transceiver_get_mid__)(transceiver);
+    return __rtp_transceiver_get_mid__(transceiver);
 }
 
 void *RtpTransceiverGetReceiver(void *transceiver)
 {
     // __debugf__(6, "===> RtpTransceiverGetReceiver()");
-    return (*__rtp_transceiver_get_receiver__)(transceiver);
+    return __rtp_transceiver_get_receiver__(transceiver);
 }
 
 void *RtpTransceiverGetSender(void *transceiver)
 {
     // __debugf__(6, "===> RtpTransceiverGetSender()");
-    return (*__rtp_transceiver_get_sender__)(transceiver);
+    return __rtp_transceiver_get_sender__(transceiver);
 }
 
 int RtpTransceiverSetDirection(void *transceiver, const char *new_direction, raw_rtc_error_t *err)
 {
     // __debugf__(6, "===> RtpTransceiverSetDirection()");
-    return (*__rtp_transceiver_set_direction__)(transceiver, new_direction, err);
+    return __rtp_transceiver_set_direction__(transceiver, new_direction, err);
 }
 
 void RtpTransceiverStop(void *transceiver)
 {
     // __debugf__(6, "===> RtpTransceiverStop()");
-    (*__rtp_transceiver_stop__)(transceiver);
+    __rtp_transceiver_stop__(transceiver);
 }
 
 void *RtpReceiverGetTrack(void *receiver)
 {
     // __debugf__(6, "===> RtpReceiverGetTrack()");
-    return (*__rtp_receiver_get_track__)(receiver);
+    return __rtp_receiver_get_track__(receiver);
 }
 
 void RtpReceiverGetStreams(void *receiver, size_t *size, void **array)
 {
     // __debugf__(6, "===> RtpReceiverGetStreams()");
-    (*__rtp_receiver_get_streams__)(receiver, size, array);
+    __rtp_receiver_get_streams__(receiver, size, array);
 }
 
 void RtpReceiverGetParameters(void *receiver, void *parameters)
 {
     // __debugf__(6, "===> RtpReceiverGetParameters()");
-    (*__rtp_receiver_get_parameters__)(receiver, parameters);
+    __rtp_receiver_get_parameters__(receiver, parameters);
 }
 
 void RtpReceiverGetStats(void *receiver, void *stats)
 {
     // __debugf__(6, "===> RtpReceiverGetStats()");
-    (*__rtp_receiver_get_stats__)(receiver, stats);
+    __rtp_receiver_get_stats__(receiver, stats);
 }
 
 int RtpSenderSetTrack(void *sender, void *track)
 {
     // __debugf__(6, "===> RtpSenderSetTrack()");
-    return (*__rtp_sender_set_track__)(sender, track);
+    return __rtp_sender_set_track__(sender, track);
 }
 
 void *RtpSenderGetTrack(void *sender)
 {
     // __debugf__(6, "===> RtpSenderGetTrack()");
-    return (*__rtp_sender_get_track__)(sender);
+    return __rtp_sender_get_track__(sender);
 }
 
 void RtpSenderSetStreams(void *sender, size_t size, const char **stream_ids)
 {
     // __debugf__(6, "===> RtpSenderSetStreams()");
-    (*__rtp_sender_set_streams__)(sender, size, stream_ids);
+    __rtp_sender_set_streams__(sender, size, stream_ids);
 }
 
 void RtpSenderGetStreams(void *sender, size_t *size, void **array)
 {
     // __debugf__(6, "===> RtpSenderGetStreams()");
-    (*__rtp_sender_get_streams__)(sender, size, array);
+    __rtp_sender_get_streams__(sender, size, array);
 }
 
 void RtpSenderSetParameters(void *sender, void *parameters)
 {
     // __debugf__(6, "===> RtpSenderSetParameters()");
-    (*__rtp_sender_set_parameters__)(sender, parameters);
+    __rtp_sender_set_parameters__(sender, parameters);
 }
 
 void RtpSenderGetParameters(void *sender, void *parameters)
 {
     // __debugf__(6, "===> RtpSenderGetParameters()");
-    (*__rtp_sender_get_parameters__)(sender, parameters);
+    __rtp_sender_get_parameters__(sender, parameters);
 }
 
 void RtpSenderGetStats(void *sender, void *stats)
 {
     // __debugf__(6, "===> RtpSenderGetStats()");
-    (*__rtp_sender_get_stats__)(sender, stats);
+    __rtp_sender_get_stats__(sender, stats);
 }
