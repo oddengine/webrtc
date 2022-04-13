@@ -18,7 +18,6 @@ type PeerConnectionFactory struct {
 }
 
 func (me *PeerConnectionFactory) Init() *PeerConnectionFactory {
-	me.fd = C.CreatePeerConnectionFactory(unsafe.Pointer(me))
 	return me
 }
 
@@ -40,7 +39,7 @@ func (me *PeerConnectionFactory) CreateAudioTrack(id string, source *MediaSource
 	track := new(MediaStreamTrack).Init()
 	track.fd = C.CreateAudioTrack(me.fd, unsafe.Pointer(track), track_id, source.fd)
 	if track.fd == nil {
-		// logger_.Errorf("Failed to CreateAudioTrack: id=%s", id)
+		logger.Errorf("Failed to CreateAudioTrack: id=%s", id)
 		return nil, fmt.Errorf("unknown error occurred")
 	}
 	return track, nil
@@ -58,12 +57,14 @@ func (me *PeerConnectionFactory) CreateVideoTrack(id string, source *MediaSource
 	track := new(MediaStreamTrack).Init()
 	track.fd = C.CreateVideoTrack(me.fd, unsafe.Pointer(track), track_id, source.fd)
 	if track.fd == nil {
-		// logger_.Errorf("Failed to CreateVideoTrack: id=%s", id)
+		logger.Errorf("Failed to CreateVideoTrack: id=%s", id)
 		return nil, fmt.Errorf("unknown error occurred")
 	}
 	return track, nil
 }
 
 func NewPeerConnectionFactory() *PeerConnectionFactory {
-	return new(PeerConnectionFactory).Init()
+	f := new(PeerConnectionFactory).Init()
+	f.fd = C.CreatePeerConnectionFactory(unsafe.Pointer(f))
+	return f
 }

@@ -4,20 +4,6 @@
 #include <stdlib.h>
 
 typedef struct {
-  char* directory;
-  char* filename;
-  int level;
-  struct {
-    int history;
-    int max_size;
-    struct {
-      int mode;  // 0: daily, 1: duration
-      int duration;
-    } schedule;
-  } rotation;
-} raw_logger_constraints_t;
-
-typedef struct {
   void (*onsignalingchange)(void* observer, const char* new_state);
   void (*ondatachannel)(void* observer, void* data_channel);
   void (*onrenegotiationneeded)(void* observer);

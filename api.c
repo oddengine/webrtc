@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "log/log.h"
+
 #ifdef _WIN32
 #include <Windows.h>
 #define dlsym GetProcAddress
@@ -16,7 +18,7 @@
 
 HMODULE handle;
 
-typedef int (*__initialize_library_fptr__)(raw_logger_constraints_t *constraints);
+typedef int (*__initialize_library_fptr__)();
 
 typedef void *(*__create_peer_connection_factory_fptr__)(void *fd);
 typedef void *(*__create_peer_connection_fptr__)(void *factory, void *pc, raw_peer_connection_observer_t *cb);
@@ -72,6 +74,14 @@ typedef void (*__rtp_sender_get_parameters_fptr__)(void *sender, void *parameter
 typedef void (*__rtp_sender_get_stats_fptr__)(void *sender, void *stats);
 
 __initialize_library_fptr__ __initialize_library__;
+
+extern __create_default_logger_factory_fptr__ __create_default_logger_factory__;
+extern __create_default_logger_fptr__ __create_default_logger__;
+extern __create_default_writer_fptr__ __create_default_writer__;
+
+extern __writer_open_fptr__ __writer_open__;
+extern __writer_write_fptr__ __writer_write__;
+extern __writer_close_fptr__ __writer_close__;
 
 __create_peer_connection_factory_fptr__ __create_peer_connection_factory__;
 __create_peer_connection_fptr__ __create_peer_connection__;
@@ -145,7 +155,7 @@ raw_set_session_description_observer_t *__set_session_description_observer__;
 extern void __onsetsessiondescriptionsuccess__(void *observer);
 extern void __onsetsessiondescriptionfailure__(void *observer, const char *name, const char *message);
 
-int InitializeLibrary(const char *file, raw_logger_constraints_t *logger)
+int InitializeLibrary(const char *file)
 {
     handle = dlopen(file, 1);
     if (handle == NULL)
@@ -162,6 +172,14 @@ int InitializeLibrary(const char *file, raw_logger_constraints_t *logger)
     }
 
     __initialize_library__ = (__initialize_library_fptr__)dlsym(handle, "InitializeLibrary");
+
+    __create_default_logger_factory__ = (__create_default_logger_factory_fptr__)dlsym(handle, "CreateDefaultLoggerFactory");
+    __create_default_logger__ = (__create_default_logger_fptr__)dlsym(handle, "CreateDefaultLogger");
+    __create_default_writer__ = (__create_default_writer_fptr__)dlsym(handle, "CreateDefaultWriter");
+
+    __writer_open__ = (__writer_open_fptr__)dlsym(handle, "WriterOpen");
+    __writer_write__ = (__writer_write_fptr__)dlsym(handle, "WriterWrite");
+    __writer_close__ = (__writer_close_fptr__)dlsym(handle, "WriterClose");
 
     __create_peer_connection_factory__ = (__create_peer_connection_factory_fptr__)dlsym(handle, "CreatePeerConnectionFactory");
     __create_peer_connection__ = (__create_peer_connection_fptr__)dlsym(handle, "CreatePeerConnection");
@@ -235,7 +253,7 @@ int InitializeLibrary(const char *file, raw_logger_constraints_t *logger)
     __set_session_description_observer__->onsuccess = __onsetsessiondescriptionsuccess__;
     __set_session_description_observer__->onfailure = __onsetsessiondescriptionfailure__;
 
-    return (*__initialize_library__)(logger);
+    return (*__initialize_library__)();
 }
 
 void *CreatePeerConnectionFactory(void *fd)
@@ -244,22 +262,22 @@ void *CreatePeerConnectionFactory(void *fd)
     return (*__create_peer_connection_factory__)(fd);
 }
 
-void *CreatePeerConnection(void *factory, void *fd)
+void *CreatePeerConnection(void *factory, void *pc)
 {
     // __debugf__(6, "===> CreatePeerConnection()");
-    return (*__create_peer_connection__)(factory, fd, __peer_connection_observer__);
+    return (*__create_peer_connection__)(factory, pc, __peer_connection_observer__);
 }
 
-void *CreateAudioTrack(void *factory, void *fd, const char *id, void *source)
+void *CreateAudioTrack(void *factory, void *track, const char *id, void *source)
 {
     // __debugf__(6, "===> CreateAudioTrack(%s)", id);
-    return (*__create_audio_track__)(factory, fd, id, source);
+    return (*__create_audio_track__)(factory, track, id, source);
 }
 
-void *CreateVideoTrack(void *factory, void *fd, const char *id, void *source)
+void *CreateVideoTrack(void *factory, void *track, const char *id, void *source)
 {
     // __debugf__(6, "===> CreateVideoTrack(%s)", id);
-    return (*__create_video_track__)(factory, fd, id, source);
+    return (*__create_video_track__)(factory, track, id, source);
 }
 
 void *PeerConnectionAddTrack(void *pc, void *track, size_t size, void **streams, raw_rtc_error_t *err)

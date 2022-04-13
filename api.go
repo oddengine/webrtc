@@ -9,9 +9,10 @@ package rawrtc
 */
 import "C"
 import (
-	"encoding/xml"
 	"fmt"
 	"unsafe"
+
+	"gitlab.xthktech.cn/xthk-media/rawrtc/log"
 )
 
 const (
@@ -38,41 +39,26 @@ const (
 	RTP_TRANSCEIVER_DIRECTION_INACTIVE = "inactive"
 )
 
-func InitializeLibrary(path string, logger LoggerConstraints) error {
+var (
+	factory log.ILoggerFactory
+	logger  log.ILogger
+)
+
+func InitializeLibrary(path string, constraints *log.DefaultWriterConstraints) error {
 	file := C.CString(path)
 	defer func() {
 		C.free(unsafe.Pointer(file))
 	}()
 
-	var constraints C.raw_logger_constraints_t
-	constraints.directory = C.CString(logger.Directory)
-	constraints.filename = C.CString(logger.FileName)
-	constraints.level = 0x0FFF
-	constraints.rotation.max_size = C.int(logger.Rotation.MaxSize * 1024)
-	constraints.rotation.schedule.mode = 0
-	constraints.rotation.schedule.duration = 0
-	constraints.rotation.history = C.int(logger.Rotation.History)
-
-	eno := int(C.InitializeLibrary(file, &constraints))
+	eno := int(C.InitializeLibrary(file))
 	if eno != 0 {
+		log.Errorf("Failed to initialize library: %d", eno)
 		return fmt.Errorf("error %d", eno)
 	}
-	return nil
-}
 
-type LoggerConstraints struct {
-	Logger    xml.Name `xml:""`
-	Directory string   `xml:""`
-	FileName  string   `xml:""`
-	Level     string   `xml:""`
-	Rotation  struct {
-		MaxSize  int64 `xml:""`
-		Schedule struct {
-			Type     string `xml:"type,attr"`
-			Duration string `xml:",innerxml"`
-		} `xml:""`
-		History int `xml:""`
-	} `xml:""`
+	factory = log.NewDefaultLoggerFactory(constraints)
+	logger = factory.NewLogger("RTC")
+	return nil
 }
 
 type PeerConnectionFactoryInterface interface {

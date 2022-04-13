@@ -1,15 +1,16 @@
-#ifndef WEBRTC_API_H_
-#define WEBRTC_API_H_
+#ifndef RAWRTC_API_H_
+#define RAWRTC_API_H_
 
 #include <string.h>
 
 #include "include/api.h"
+#include "include/log.h"
 #include "include/ice_candidate.h"
 #include "include/rtc_error.h"
 #include "include/rtp_transceiver.h"
 #include "include/session_description.h"
 
-int InitializeLibrary(const char *file, raw_logger_constraints_t *logger);
+int InitializeLibrary(const char *file);
 
 void *CreatePeerConnectionFactory(void *fd);
 void *CreatePeerConnection(void *factory, void *fd);
@@ -64,4 +65,4 @@ void RtpSenderSetParameters(void *sender, void *parameters);
 void RtpSenderGetParameters(void *sender, void *parameters);
 void RtpSenderGetStats(void *sender, void *stats);
 
-#endif // WEBRTC_API_H_
+#endif // RAWRTC_API_H_

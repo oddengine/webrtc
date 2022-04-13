@@ -24,7 +24,7 @@ func (me *RtpReceiver) Track() *MediaStreamTrack {
 	track := new(MediaStreamTrack).Init()
 	track.fd = C.RtpReceiverGetTrack(me.fd)
 	if track.fd == nil {
-		// logger_.Errorf("Failed to RtpReceiverGetTrack.")
+		logger.Errorf("Failed to RtpReceiverGetTrack.")
 		return nil
 	}
 	return track
