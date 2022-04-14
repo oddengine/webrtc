@@ -153,45 +153,51 @@ type PeerConnectionInterface interface {
 	// OnTrack               func(track MediaStreamTrackInterface, streams ...MediaStreamInterface)
 }
 
+//export __onloggerwriterresize__
+func __onloggerwriterresize__(target unsafe.Pointer) {
+	ob := (*DefaultWriter)(target)
+	ob.OnResize()
+}
+
 //export __onsignalingchange__
-func __onsignalingchange__(observer unsafe.Pointer, new_state *C.char) {
-	ob := (*PeerConnection)(observer)
+func __onsignalingchange__(target unsafe.Pointer, new_state *C.char) {
+	ob := (*PeerConnection)(target)
 	ob.OnSignalingChange(C.GoString(new_state))
 }
 
 //export __ondatachannel__
-func __ondatachannel__(observer unsafe.Pointer, data_channel unsafe.Pointer) {
-	ob := (*PeerConnection)(observer)
+func __ondatachannel__(target unsafe.Pointer, data_channel unsafe.Pointer) {
+	ob := (*PeerConnection)(target)
 	ob.OnDataChannel(data_channel)
 }
 
 //export __onrenegotiationneeded__
-func __onrenegotiationneeded__(observer unsafe.Pointer) {
-	ob := (*PeerConnection)(observer)
+func __onrenegotiationneeded__(target unsafe.Pointer) {
+	ob := (*PeerConnection)(target)
 	ob.OnRenegotiationNeeded()
 }
 
 //export __onconnectionchange__
-func __onconnectionchange__(observer unsafe.Pointer, new_state *C.char) {
-	ob := (*PeerConnection)(observer)
+func __onconnectionchange__(target unsafe.Pointer, new_state *C.char) {
+	ob := (*PeerConnection)(target)
 	ob.OnConnectionChange(C.GoString(new_state))
 }
 
 //export __oniceconnectionchange__
-func __oniceconnectionchange__(observer unsafe.Pointer, new_state *C.char) {
-	ob := (*PeerConnection)(observer)
+func __oniceconnectionchange__(target unsafe.Pointer, new_state *C.char) {
+	ob := (*PeerConnection)(target)
 	ob.OnIceConnectionChange(C.GoString(new_state))
 }
 
 //export __onicegatheringchange__
-func __onicegatheringchange__(observer unsafe.Pointer, new_state *C.char) {
-	ob := (*PeerConnection)(observer)
+func __onicegatheringchange__(target unsafe.Pointer, new_state *C.char) {
+	ob := (*PeerConnection)(target)
 	ob.OnIceGatheringChange(C.GoString(new_state))
 }
 
 //export __onicecandidate__
-func __onicecandidate__(observer unsafe.Pointer, candidate *C.char, sdp_mid *C.char, sdp_mline_index C.int) {
-	ob := (*PeerConnection)(observer)
+func __onicecandidate__(target unsafe.Pointer, candidate *C.char, sdp_mid *C.char, sdp_mline_index C.int) {
+	ob := (*PeerConnection)(target)
 	ob.OnIceCandidate(&IceCandidate{
 		Candidate:     C.GoString(candidate),
 		SDPMid:        C.GoString(sdp_mid),
@@ -200,13 +206,13 @@ func __onicecandidate__(observer unsafe.Pointer, candidate *C.char, sdp_mid *C.c
 }
 
 //export __onicecandidateerror__
-func __onicecandidateerror__(observer unsafe.Pointer, address *C.char, port C.int, url *C.char, error_code C.int, error_text *C.char) {
-	ob := (*PeerConnection)(observer)
+func __onicecandidateerror__(target unsafe.Pointer, address *C.char, port C.int, url *C.char, error_code C.int, error_text *C.char) {
+	ob := (*PeerConnection)(target)
 	ob.OnIceCandidateError(C.GoString(address), int(port), C.GoString(url), int(error_code), C.GoString(error_text))
 }
 
 //export __ontrack__
-func __ontrack__(observer unsafe.Pointer, transceiver unsafe.Pointer) {
+func __ontrack__(target unsafe.Pointer, transceiver unsafe.Pointer) {
 	trans := new(RtpTransceiver).Init()
 	trans.fd = transceiver
 
@@ -214,13 +220,13 @@ func __ontrack__(observer unsafe.Pointer, transceiver unsafe.Pointer) {
 	track := receiver.Track()
 	streams := receiver.Streams()
 
-	ob := (*PeerConnection)(observer)
+	ob := (*PeerConnection)(target)
 	ob.OnTrack(track, streams...)
 }
 
 //export __oncreatesessiondescriptionsuccess__
-func __oncreatesessiondescriptionsuccess__(observer unsafe.Pointer, typ *C.char, sdp *C.char) {
-	ob := (*CreateSessionDescriptionObserver)(observer)
+func __oncreatesessiondescriptionsuccess__(target unsafe.Pointer, typ *C.char, sdp *C.char) {
+	ob := (*CreateSessionDescriptionObserver)(target)
 	if ob.OnSuccess != nil {
 		ob.OnSuccess(SessionDescription{
 			Type: C.GoString(typ),
@@ -230,24 +236,24 @@ func __oncreatesessiondescriptionsuccess__(observer unsafe.Pointer, typ *C.char,
 }
 
 //export __oncreatesessiondescriptionfailure__
-func __oncreatesessiondescriptionfailure__(observer unsafe.Pointer, name *C.char, message *C.char) {
-	ob := (*CreateSessionDescriptionObserver)(observer)
+func __oncreatesessiondescriptionfailure__(target unsafe.Pointer, name *C.char, message *C.char) {
+	ob := (*CreateSessionDescriptionObserver)(target)
 	if ob.OnFailure != nil {
 		ob.OnFailure(new(RTCError).Init(C.GoString(name), C.GoString(message)))
 	}
 }
 
 //export __onsetsessiondescriptionsuccess__
-func __onsetsessiondescriptionsuccess__(observer unsafe.Pointer) {
-	ob := (*SetSessionDescriptionObserver)(observer)
+func __onsetsessiondescriptionsuccess__(target unsafe.Pointer) {
+	ob := (*SetSessionDescriptionObserver)(target)
 	if ob.OnSuccess != nil {
 		ob.OnSuccess()
 	}
 }
 
 //export __onsetsessiondescriptionfailure__
-func __onsetsessiondescriptionfailure__(observer unsafe.Pointer, name *C.char, message *C.char) {
-	ob := (*SetSessionDescriptionObserver)(observer)
+func __onsetsessiondescriptionfailure__(target unsafe.Pointer, name *C.char, message *C.char) {
+	ob := (*SetSessionDescriptionObserver)(target)
 	if ob.OnFailure != nil {
 		ob.OnFailure(new(RTCError).Init(C.GoString(name), C.GoString(message)))
 	}

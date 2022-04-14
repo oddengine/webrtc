@@ -16,37 +16,37 @@ typedef struct {
 } raw_default_writer_constraints_t;
 
 typedef struct {
-  void (*onresize)();
+  void (*onresize)(void* target);
 } raw_default_writer_observer_t;
 
 typedef struct {
-  void (*onsignalingchange)(void* observer, const char* new_state);
-  void (*ondatachannel)(void* observer, void* data_channel);
-  void (*onrenegotiationneeded)(void* observer);
-  void (*onconnectionchange)(void* observer, const char* new_state);
-  void (*oniceconnectionchange)(void* observer, const char* new_state);
-  void (*onicegatheringchange)(void* observer, const char* new_state);
-  void (*onicecandidate)(void* observer,
+  void (*onsignalingchange)(void* target, const char* new_state);
+  void (*ondatachannel)(void* target, void* data_channel);
+  void (*onrenegotiationneeded)(void* target);
+  void (*onconnectionchange)(void* target, const char* new_state);
+  void (*oniceconnectionchange)(void* target, const char* new_state);
+  void (*onicegatheringchange)(void* target, const char* new_state);
+  void (*onicecandidate)(void* target,
                          const char* candidate,
                          const char* sdp_mid,
                          int sdp_mline_index);
-  void (*onicecandidateerror)(void* observer,
+  void (*onicecandidateerror)(void* target,
                               const char* address,
                               int port,
                               const char* url,
                               int error_code,
                               const char* error_text);
-  void (*ontrack)(void* observer, void* transceiver);
+  void (*ontrack)(void* target, void* transceiver);
 } raw_peer_connection_observer_t;
 
 typedef struct {
-  void (*onsuccess)(void* observer, const char* type, const char* sdp);
-  void (*onfailure)(void* observer, const char* name, const char* message);
+  void (*onsuccess)(void* target, const char* type, const char* sdp);
+  void (*onfailure)(void* target, const char* name, const char* message);
 } raw_create_session_description_observer_t;
 
 typedef struct {
-  void (*onsuccess)(void* observer);
-  void (*onfailure)(void* observer, const char* name, const char* message);
+  void (*onsuccess)(void* target);
+  void (*onfailure)(void* target, const char* name, const char* message);
 } raw_set_session_description_observer_t;
 
 #endif  // EXAMPLES_RAWRTC_API_H_

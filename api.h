@@ -17,6 +17,7 @@ void *CreateDefaultWriter(void *fd, raw_default_writer_constraints_t *constraint
 
 int WriterOpen(void *writer, const char *path);
 int WriterWrite(void *writer, const char *message, size_t size);
+size_t WriterSize(void *writer);
 int WriterClose(void *writer);
 
 void *CreatePeerConnectionFactory(void *fd);

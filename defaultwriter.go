@@ -47,9 +47,6 @@ type DefaultWriter struct {
 	mtx         sync.Mutex
 	files       []string
 	ticker      *time.Ticker
-	size        int64
-
-	OnRotate func()
 }
 
 // Init this class.
@@ -57,8 +54,8 @@ func (me *DefaultWriter) Init(constraints *DefaultWriterConstraints) *DefaultWri
 	var config C.raw_default_writer_constraints_t
 	config.rotation.maxsize = C.int(constraints.Rotation.MaxSize)
 
-	me.fd = C.CreateDefaultWriter(unsafe.Pointer(me), &config)
 	me.constraints = constraints
+	me.fd = C.CreateDefaultWriter(unsafe.Pointer(me), &config)
 
 	err := utils.MkdirAll(constraints.Directory)
 	if err != nil {
@@ -73,6 +70,31 @@ func (me *DefaultWriter) Init(constraints *DefaultWriterConstraints) *DefaultWri
 		panic(err)
 	}
 	return me
+}
+
+// Write writes len(p) bytes from p to the underlying data stream.
+func (me *DefaultWriter) Write(p []byte) (int, error) {
+	me.mtx.Lock()
+	defer me.mtx.Unlock()
+
+	if me.constraints.Rotation.MaxSize > 0 && me.Size()+int64(len(p)) >= me.constraints.Rotation.MaxSize {
+		err := me.rotate()
+		if err != nil {
+			Errorf("Failed to rotate log: %s", err)
+			return 0, err
+		}
+	}
+
+	n := (int)(C.WriterWrite(me.fd, (*C.char)(unsafe.Pointer(&p[0])), (C.size_t)(len(p))))
+	if n <= 0 {
+		Errorf("Failed to WriterWrite.")
+		return 0, fmt.Errorf("error %d", n)
+	}
+	return n, nil
+}
+
+func (me *DefaultWriter) Size() int64 {
+	return (int64)(C.WriterSize(me.fd))
 }
 
 func (me *DefaultWriter) readdir() error {
@@ -95,28 +117,6 @@ func (me *DefaultWriter) readdir() error {
 	}
 	sort.Strings(me.files)
 	return nil
-}
-
-// Write writes len(p) bytes from p to the underlying data stream.
-func (me *DefaultWriter) Write(p []byte) (int, error) {
-	me.mtx.Lock()
-	defer me.mtx.Unlock()
-
-	if me.constraints.Rotation.MaxSize > 0 && me.size+int64(len(p)) >= me.constraints.Rotation.MaxSize {
-		err := me.rotate()
-		if err != nil {
-			Errorf("Failed to rotate log: %s", err)
-			return 0, err
-		}
-	}
-
-	n := (int)(C.WriterWrite(me.fd, (*C.char)(unsafe.Pointer(&p[0])), (C.size_t)(len(p))))
-	if n <= 0 {
-		Errorf("Failed to WriterWrite.")
-		return 0, fmt.Errorf("error %d", n)
-	}
-	me.size += int64(n)
-	return n, nil
 }
 
 func (me *DefaultWriter) rotate() error {
@@ -156,7 +156,6 @@ func (me *DefaultWriter) rotate() error {
 		return fmt.Errorf("error %d", eno)
 	}
 	me.files = append(me.files, name)
-	me.size = 0
 	Debugf(0, "New log: file=%s", me.constraints.Directory+name)
 
 	// Start ticker.
@@ -191,6 +190,19 @@ func (me *DefaultWriter) rotate() error {
 		go me.wait()
 	}
 	return nil
+}
+
+func (me *DefaultWriter) OnResize() {
+	// TODO(spencer@lau): If a goroutine calls Write(), which triggered OnResize,
+	// it will cause a deadlock here. For now, we only call Write() in c++.
+	me.mtx.Lock()
+	defer me.mtx.Unlock()
+
+	err := me.rotate()
+	if err != nil {
+		Errorf("Failed to rotate log: %s", err)
+		return
+	}
 }
 
 func (me *DefaultWriter) wait() {
