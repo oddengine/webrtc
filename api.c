@@ -28,6 +28,8 @@ typedef size_t (*__writer_size_fptr__)(void *writer);
 typedef int (*__writer_close_fptr__)(void *writer);
 
 typedef void *(*__create_peer_connection_factory_fptr__)(void *fd);
+typedef raw_rtp_capabilities_t (*__get_rtp_sender_capabilities_fptr__)(void *factory, const char *kind);
+typedef raw_rtp_capabilities_t (*__get_rtp_receiver_capabilities_fptr__)(void *factory, const char *kind);
 typedef void *(*__create_peer_connection_fptr__)(void *factory, void *pc, raw_peer_connection_observer_t *cb);
 typedef void *(*__create_audio_track_fptr__)(void *factory, void *track, const char *id, void *source);
 typedef void *(*__create_video_track_fptr__)(void *factory, void *track, const char *id, void *source);
@@ -64,6 +66,7 @@ typedef const char *(*__rtp_transceiver_get_direction_fptr__)(void *transceiver)
 typedef const char *(*__rtp_transceiver_get_mid_fptr__)(void *transceiver);
 typedef void *(*__rtp_transceiver_get_receiver_fptr__)(void *transceiver);
 typedef void *(*__rtp_transceiver_get_sender_fptr__)(void *transceiver);
+typedef void (*__rtp_transceiver_set_codec_preferences_fptr__)(void *transceiver, void **codecs, size_t size);
 typedef int (*__rtp_transceiver_set_direction_fptr__)(void *transceiver, const char *new_direction, raw_rtc_error_t *err);
 typedef void (*__rtp_transceiver_stop_fptr__)(void *transceiver);
 
@@ -92,6 +95,8 @@ __writer_size_fptr__ __writer_size__;
 __writer_close_fptr__ __writer_close__;
 
 __create_peer_connection_factory_fptr__ __create_peer_connection_factory__;
+__get_rtp_sender_capabilities_fptr__ __get_rtp_sender_capabilities__;
+__get_rtp_receiver_capabilities_fptr__ __get_rtp_receiver_capabilities__;
 __create_peer_connection_fptr__ __create_peer_connection__;
 __create_audio_track_fptr__ __create_audio_track__;
 __create_video_track_fptr__ __create_video_track__;
@@ -128,6 +133,7 @@ __rtp_transceiver_get_direction_fptr__ __rtp_transceiver_get_direction__;
 __rtp_transceiver_get_mid_fptr__ __rtp_transceiver_get_mid__;
 __rtp_transceiver_get_receiver_fptr__ __rtp_transceiver_get_receiver__;
 __rtp_transceiver_get_sender_fptr__ __rtp_transceiver_get_sender__;
+__rtp_transceiver_set_codec_preferences_fptr__ __rtp_transceiver_set_codec_preferences__;
 __rtp_transceiver_set_direction_fptr__ __rtp_transceiver_set_direction__;
 __rtp_transceiver_stop_fptr__ __rtp_transceiver_stop__;
 
@@ -194,6 +200,8 @@ int InitializeLibrary(const char *file)
     __writer_close__ = (__writer_close_fptr__)dlsym(handle, "WriterClose");
 
     __create_peer_connection_factory__ = (__create_peer_connection_factory_fptr__)dlsym(handle, "CreatePeerConnectionFactory");
+    __get_rtp_sender_capabilities__ = (__get_rtp_sender_capabilities_fptr__)dlsym(handle, "GetRtpSenderCapabilities");
+    __get_rtp_receiver_capabilities__ = (__get_rtp_receiver_capabilities_fptr__)dlsym(handle, "GetRtpReceiverCapabilities");
     __create_peer_connection__ = (__create_peer_connection_fptr__)dlsym(handle, "CreatePeerConnection");
     __create_audio_track__ = (__create_audio_track_fptr__)dlsym(handle, "CreateAudioTrack");
     __create_video_track__ = (__create_video_track_fptr__)dlsym(handle, "CreateVideoTrack");
@@ -230,6 +238,7 @@ int InitializeLibrary(const char *file)
     __rtp_transceiver_get_mid__ = (__rtp_transceiver_get_mid_fptr__)dlsym(handle, "RtpTransceiverGetMid");
     __rtp_transceiver_get_receiver__ = (__rtp_transceiver_get_receiver_fptr__)dlsym(handle, "RtpTransceiverGetReceiver");
     __rtp_transceiver_get_sender__ = (__rtp_transceiver_get_sender_fptr__)dlsym(handle, "RtpTransceiverGetSender");
+    __rtp_transceiver_set_codec_preferences__ = (__rtp_transceiver_set_codec_preferences_fptr__)dlsym(handle, "RtpTransceiverSetCodecPreferences");
     __rtp_transceiver_set_direction__ = (__rtp_transceiver_set_direction_fptr__)dlsym(handle, "RtpTransceiverSetDirection");
     __rtp_transceiver_stop__ = (__rtp_transceiver_stop_fptr__)dlsym(handle, "RtpTransceiverStop");
 
@@ -317,6 +326,18 @@ void *CreatePeerConnectionFactory(void *fd)
 {
     // __debugf__(6, "===> CreatePeerConnectionFactory()");
     return __create_peer_connection_factory__(fd);
+}
+
+raw_rtp_capabilities_t GetRtpSenderCapabilities(void *factory, const char *kind)
+{
+    // __debugf__(6, "===> GetRtpSenderCapabilities()");
+    return __get_rtp_sender_capabilities__(factory, kind);
+}
+
+raw_rtp_capabilities_t GetRtpReceiverCapabilities(void *factory, const char *kind)
+{
+    // __debugf__(6, "===> GetRtpReceiverCapabilities()");
+    return __get_rtp_receiver_capabilities__(factory, kind);
 }
 
 void *CreatePeerConnection(void *factory, void *pc)
@@ -509,6 +530,12 @@ void *RtpTransceiverGetSender(void *transceiver)
 {
     // __debugf__(6, "===> RtpTransceiverGetSender()");
     return __rtp_transceiver_get_sender__(transceiver);
+}
+
+void RtpTransceiverSetCodecPreferences(void *transceiver, void **codecs, size_t size)
+{
+    // __debugf__(6, "===> RtpTransceiverSetCodecPreferences()");
+    return __rtp_transceiver_set_codec_preferences__(transceiver, codecs, size);
 }
 
 int RtpTransceiverSetDirection(void *transceiver, const char *new_direction, raw_rtc_error_t *err)

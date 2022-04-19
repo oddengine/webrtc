@@ -6,6 +6,7 @@
 #include "include/api.h"
 #include "include/ice_candidate.h"
 #include "include/rtc_error.h"
+#include "include/rtp_parameters.h"
 #include "include/rtp_transceiver.h"
 #include "include/session_description.h"
 
@@ -21,6 +22,8 @@ size_t WriterSize(void *writer);
 int WriterClose(void *writer);
 
 void *CreatePeerConnectionFactory(void *fd);
+raw_rtp_capabilities_t GetRtpSenderCapabilities(void *factory, const char *kind);
+raw_rtp_capabilities_t GetRtpReceiverCapabilities(void *factory, const char *kind);
 void *CreatePeerConnection(void *factory, void *fd);
 void *CreateAudioTrack(void *factory, void *fd, const char *id, void *source);
 void *CreateVideoTrack(void *factory, void *fd, const char *id, void *source);
@@ -57,6 +60,7 @@ const char *RtpTransceiverGetDirection(void *transceiver);
 const char *RtpTransceiverGetMid(void *transceiver);
 void *RtpTransceiverGetReceiver(void *transceiver);
 void *RtpTransceiverGetSender(void *transceiver);
+void RtpTransceiverSetCodecPreferences(void *transceiver, void **codecs, size_t size);
 int RtpTransceiverSetDirection(void *transceiver, const char *new_direction, raw_rtc_error_t *err);
 void RtpTransceiverStop(void *transceiver);
 

@@ -118,8 +118,21 @@ type RtpTransceiverInterface interface {
 	Mid() string
 	Receiver() RtpReceiverInterface
 	Sender() RtpSenderInterface
+	SetCodecPreferences(codecs []RtpCodecCapability)
 	SetDirection(new_direction string) error
 	Stop()
+}
+
+type RtpCapabilities struct {
+	Codecs []RtpCodecCapability
+}
+
+type RtpCodecCapability struct {
+	fd unsafe.Pointer
+
+	MimeType  string
+	ClockRate int
+	Channels  int
 }
 
 type RtpTransceiverInit struct {
