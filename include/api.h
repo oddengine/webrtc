@@ -2,12 +2,17 @@
 #define EXAMPLES_RAWRTC_API_H_
 
 #include <stdlib.h>
+#include <string.h>
 
 #ifdef _WIN32
 #define __dllexport__ __declspec(dllexport)
 #else
 #define __dllexport__
 #endif
+
+typedef struct {
+  int64_t keyframe_interval;
+} raw_rtc_constraints_t;
 
 typedef struct {
   struct {
@@ -48,5 +53,7 @@ typedef struct {
   void (*onsuccess)(void* target);
   void (*onfailure)(void* target, const char* name, const char* message);
 } raw_set_session_description_observer_t;
+
+void* raw_calloc(size_t size);
 
 #endif  // EXAMPLES_RAWRTC_API_H_

@@ -23,7 +23,7 @@ func (me *RtpSender) Init() *RtpSender {
 func (me *RtpSender) SetTrack(track *MediaStreamTrack) bool {
 	eno := (int)(C.RtpSenderSetTrack(me.fd, track.fd))
 	if eno != 0 {
-		logger.Errorf("Failed to RtpSenderSetTrack.")
+		logger_.Errorf("Failed to RtpSenderSetTrack.")
 		return false
 	}
 	return true
@@ -33,7 +33,7 @@ func (me *RtpSender) Track() *MediaStreamTrack {
 	track := new(MediaStreamTrack).Init()
 	track.fd = C.RtpSenderGetTrack(me.fd)
 	if track.fd == nil {
-		logger.Errorf("Failed to RtpSenderGetTrack.")
+		logger_.Errorf("Failed to RtpSenderGetTrack.")
 		return nil
 	}
 	return track

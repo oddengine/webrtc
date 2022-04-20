@@ -38,29 +38,39 @@ const (
 )
 
 var (
-	factory ILoggerFactory
-	logger  ILogger
+	factory_ ILoggerFactory
+	logger_  ILogger
 )
 
-func InitializeLibrary(path string, constraints *DefaultWriterConstraints) error {
+// RTCConstraints dictionary is used to describe a set of rtc library.
+type RTCConstraints struct {
+	KeyframeInterval int64 // ms. 0: auto.
+}
+
+func InitializeLibrary(path string, constraints *RTCConstraints, writer *DefaultWriterConstraints) error {
 	file := C.CString(path)
 	defer func() {
 		C.free(unsafe.Pointer(file))
 	}()
 
-	eno := int(C.InitializeLibrary(file))
+	var config C.raw_rtc_constraints_t
+	config.keyframe_interval = C.int64_t(constraints.KeyframeInterval)
+
+	eno := int(C.InitializeLibrary(file, config))
 	if eno != 0 {
 		Errorf("Failed to initialize library: %d", eno)
 		return fmt.Errorf("error %d", eno)
 	}
 
-	factory = NewDefaultLoggerFactory(constraints)
-	logger = factory.NewLogger("RTC")
+	factory_ = NewDefaultLoggerFactory(writer)
+	logger_ = factory_.NewLogger("RTC")
 	return nil
 }
 
 type PeerConnectionFactoryInterface interface {
 	CreatePeerConnection(config RTCConfiguration) (PeerConnectionInterface, error)
+	GetRtpSenderCapabilities(kind string) RtpCapabilities
+	GetRtpReceiverCapabilities(kind string) RtpCapabilities
 	CreateAudioTrack(id string, source MediaSourceInterface) (MediaStreamTrackInterface, error)
 	CreateVideoTrack(id string, source MediaSourceInterface) (MediaStreamTrackInterface, error)
 }

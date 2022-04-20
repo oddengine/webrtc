@@ -16,7 +16,7 @@
 
 HMODULE handle;
 
-typedef int (*__initialize_library_fptr__)();
+typedef int (*__initialize_library_fptr__)(raw_rtc_constraints_t constraints);
 
 typedef void *(*__create_default_logger_factory_fptr__)(void *fd, void *out, int level);
 typedef void *(*__create_default_logger_fptr__)(void *fd, void *factory, const char *scope);
@@ -172,7 +172,7 @@ raw_set_session_description_observer_t *__set_session_description_observer__;
 extern void __onsetsessiondescriptionsuccess__(void *observer);
 extern void __onsetsessiondescriptionfailure__(void *observer, const char *name, const char *message);
 
-int InitializeLibrary(const char *file)
+int InitializeLibrary(const char *file, raw_rtc_constraints_t constraints)
 {
     handle = dlopen(file, 1);
     if (handle == NULL)
@@ -277,7 +277,7 @@ int InitializeLibrary(const char *file)
     __set_session_description_observer__->onsuccess = __onsetsessiondescriptionsuccess__;
     __set_session_description_observer__->onfailure = __onsetsessiondescriptionfailure__;
 
-    return __initialize_library__();
+    return __initialize_library__(constraints);
 }
 
 void *CreateDefaultLoggerFactory(void *fd, void *out, int level)
