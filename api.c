@@ -255,7 +255,7 @@ int InitializeLibrary(const char *file, raw_rtc_constraints_t constraints)
     __rtp_sender_get_parameters__ = (__rtp_sender_get_parameters_fptr__)dlsym(handle, "RtpSenderGetParameters");
     __rtp_sender_get_stats__ = (__rtp_sender_get_stats_fptr__)dlsym(handle, "RtpSenderGetStats");
 
-    __logger_writer_observer__ = malloc(sizeof(__logger_writer_observer__));
+    __logger_writer_observer__ = malloc(sizeof(raw_default_writer_observer_t));
     __logger_writer_observer__->onresize = __onloggerwriterresize__;
 
     __peer_connection_observer__ = malloc(sizeof(raw_peer_connection_observer_t));
