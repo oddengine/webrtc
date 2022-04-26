@@ -97,11 +97,15 @@ func (me *PeerConnection) AddTransceiver(media_type string, init RtpTransceiverI
 }
 
 func (me *PeerConnection) CreateOffer(observer *CreateSessionDescriptionObserver) {
-	C.PeerConnectionCreateOffer(me.fd, unsafe.Pointer(observer))
+	ob := unsafe.Pointer(observer)
+	observers_[uintptr(ob)] = observer
+	C.PeerConnectionCreateOffer(me.fd, ob)
 }
 
 func (me *PeerConnection) CreateAnswer(observer *CreateSessionDescriptionObserver) {
-	C.PeerConnectionCreateAnswer(me.fd, unsafe.Pointer(observer))
+	ob := unsafe.Pointer(observer)
+	observers_[uintptr(ob)] = observer
+	C.PeerConnectionCreateAnswer(me.fd, ob)
 }
 
 func (me *PeerConnection) SetLocalDescription(observer *SetSessionDescriptionObserver, desc *SessionDescription) {
@@ -113,7 +117,9 @@ func (me *PeerConnection) SetLocalDescription(observer *SetSessionDescriptionObs
 		C.free(unsafe.Pointer(description.sdp))
 	}()
 
-	C.PeerConnectionSetLocalDescription(me.fd, unsafe.Pointer(observer), &description)
+	ob := unsafe.Pointer(observer)
+	observers_[uintptr(ob)] = observer
+	C.PeerConnectionSetLocalDescription(me.fd, ob, &description)
 }
 
 func (me *PeerConnection) SetRemoteDescription(observer *SetSessionDescriptionObserver, desc *SessionDescription) {
@@ -125,7 +131,9 @@ func (me *PeerConnection) SetRemoteDescription(observer *SetSessionDescriptionOb
 		C.free(unsafe.Pointer(description.sdp))
 	}()
 
-	C.PeerConnectionSetRemoteDescription(me.fd, unsafe.Pointer(observer), &description)
+	ob := unsafe.Pointer(observer)
+	observers_[uintptr(ob)] = observer
+	C.PeerConnectionSetRemoteDescription(me.fd, ob, &description)
 }
 
 func (me *PeerConnection) AddIceCandidate(candidate *IceCandidate) error {

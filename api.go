@@ -10,6 +10,7 @@ package rawrtc
 import "C"
 import (
 	"fmt"
+	"runtime/debug"
 	"unsafe"
 )
 
@@ -38,8 +39,9 @@ const (
 )
 
 var (
-	factory_ ILoggerFactory
-	logger_  ILogger
+	factory_   ILoggerFactory
+	logger_    ILogger
+	observers_ = make(map[uintptr]interface{})
 )
 
 // RTCConstraints dictionary is used to describe a set of rtc library.
@@ -178,64 +180,152 @@ type PeerConnectionInterface interface {
 
 //export __onloggerwriterresize__
 func __onloggerwriterresize__(target unsafe.Pointer) {
-	ob := (*DefaultWriter)(target)
-	ob.OnResize()
+	defer func() {
+		if err := recover(); err != nil {
+			logger_.Errorf("Unexpected error occurred: %v", err)
+			debug.PrintStack()
+		}
+	}()
+
+	dw := (*DefaultWriter)(target)
+	if dw != nil {
+		dw.OnResize()
+	}
 }
 
 //export __onsignalingchange__
 func __onsignalingchange__(target unsafe.Pointer, new_state *C.char) {
-	ob := (*PeerConnection)(target)
-	ob.OnSignalingChange(C.GoString(new_state))
+	defer func() {
+		if err := recover(); err != nil {
+			logger_.Errorf("Unexpected error occurred: %v", err)
+			debug.PrintStack()
+		}
+	}()
+
+	pc := (*PeerConnection)(target)
+	if pc != nil {
+		pc.OnSignalingChange(C.GoString(new_state))
+	}
 }
 
 //export __ondatachannel__
 func __ondatachannel__(target unsafe.Pointer, data_channel unsafe.Pointer) {
-	ob := (*PeerConnection)(target)
-	ob.OnDataChannel(data_channel)
+	defer func() {
+		if err := recover(); err != nil {
+			logger_.Errorf("Unexpected error occurred: %v", err)
+			debug.PrintStack()
+		}
+	}()
+
+	pc := (*PeerConnection)(target)
+	if pc != nil {
+		pc.OnDataChannel(data_channel)
+	}
 }
 
 //export __onrenegotiationneeded__
 func __onrenegotiationneeded__(target unsafe.Pointer) {
-	ob := (*PeerConnection)(target)
-	ob.OnRenegotiationNeeded()
+	defer func() {
+		if err := recover(); err != nil {
+			logger_.Errorf("Unexpected error occurred: %v", err)
+			debug.PrintStack()
+		}
+	}()
+
+	pc := (*PeerConnection)(target)
+	if pc != nil {
+		pc.OnRenegotiationNeeded()
+	}
 }
 
 //export __onconnectionchange__
 func __onconnectionchange__(target unsafe.Pointer, new_state *C.char) {
-	ob := (*PeerConnection)(target)
-	ob.OnConnectionChange(C.GoString(new_state))
+	defer func() {
+		if err := recover(); err != nil {
+			logger_.Errorf("Unexpected error occurred: %v", err)
+			debug.PrintStack()
+		}
+	}()
+
+	pc := (*PeerConnection)(target)
+	if pc != nil {
+		pc.OnConnectionChange(C.GoString(new_state))
+	}
 }
 
 //export __oniceconnectionchange__
 func __oniceconnectionchange__(target unsafe.Pointer, new_state *C.char) {
-	ob := (*PeerConnection)(target)
-	ob.OnIceConnectionChange(C.GoString(new_state))
+	defer func() {
+		if err := recover(); err != nil {
+			logger_.Errorf("Unexpected error occurred: %v", err)
+			debug.PrintStack()
+		}
+	}()
+
+	pc := (*PeerConnection)(target)
+	if pc != nil {
+		pc.OnIceConnectionChange(C.GoString(new_state))
+	}
 }
 
 //export __onicegatheringchange__
 func __onicegatheringchange__(target unsafe.Pointer, new_state *C.char) {
-	ob := (*PeerConnection)(target)
-	ob.OnIceGatheringChange(C.GoString(new_state))
+	defer func() {
+		if err := recover(); err != nil {
+			logger_.Errorf("Unexpected error occurred: %v", err)
+			debug.PrintStack()
+		}
+	}()
+
+	pc := (*PeerConnection)(target)
+	if pc != nil {
+		pc.OnIceGatheringChange(C.GoString(new_state))
+	}
 }
 
 //export __onicecandidate__
 func __onicecandidate__(target unsafe.Pointer, candidate *C.char, sdp_mid *C.char, sdp_mline_index C.int) {
-	ob := (*PeerConnection)(target)
-	ob.OnIceCandidate(&IceCandidate{
-		Candidate:     C.GoString(candidate),
-		SDPMid:        C.GoString(sdp_mid),
-		SDPMLineIndex: int(sdp_mline_index),
-	})
+	defer func() {
+		if err := recover(); err != nil {
+			logger_.Errorf("Unexpected error occurred: %v", err)
+			debug.PrintStack()
+		}
+	}()
+
+	pc := (*PeerConnection)(target)
+	if pc != nil {
+		pc.OnIceCandidate(&IceCandidate{
+			Candidate:     C.GoString(candidate),
+			SDPMid:        C.GoString(sdp_mid),
+			SDPMLineIndex: int(sdp_mline_index),
+		})
+	}
 }
 
 //export __onicecandidateerror__
 func __onicecandidateerror__(target unsafe.Pointer, address *C.char, port C.int, url *C.char, error_code C.int, error_text *C.char) {
-	ob := (*PeerConnection)(target)
-	ob.OnIceCandidateError(C.GoString(address), int(port), C.GoString(url), int(error_code), C.GoString(error_text))
+	defer func() {
+		if err := recover(); err != nil {
+			logger_.Errorf("Unexpected error occurred: %v", err)
+			debug.PrintStack()
+		}
+	}()
+
+	pc := (*PeerConnection)(target)
+	if pc != nil {
+		pc.OnIceCandidateError(C.GoString(address), int(port), C.GoString(url), int(error_code), C.GoString(error_text))
+	}
 }
 
 //export __ontrack__
 func __ontrack__(target unsafe.Pointer, transceiver unsafe.Pointer) {
+	defer func() {
+		if err := recover(); err != nil {
+			logger_.Errorf("Unexpected error occurred: %v", err)
+			debug.PrintStack()
+		}
+	}()
+
 	trans := new(RtpTransceiver).Init()
 	trans.fd = transceiver
 
@@ -243,41 +333,75 @@ func __ontrack__(target unsafe.Pointer, transceiver unsafe.Pointer) {
 	track := receiver.Track()
 	streams := receiver.Streams()
 
-	ob := (*PeerConnection)(target)
-	ob.OnTrack(track, streams...)
+	pc := (*PeerConnection)(target)
+	if pc != nil {
+		pc.OnTrack(track, streams...)
+	}
 }
 
 //export __oncreatesessiondescriptionsuccess__
 func __oncreatesessiondescriptionsuccess__(target unsafe.Pointer, typ *C.char, sdp *C.char) {
+	defer func() {
+		if err := recover(); err != nil {
+			logger_.Errorf("Unexpected error occurred: %v", err)
+			debug.PrintStack()
+		}
+	}()
+
 	ob := (*CreateSessionDescriptionObserver)(target)
-	if ob.OnSuccess != nil {
+	if ob != nil && ob.OnSuccess != nil {
 		ob.OnSuccess(SessionDescription{
 			Type: C.GoString(typ),
 			SDP:  C.GoString(sdp),
 		})
 	}
+	delete(observers_, uintptr(target))
 }
 
 //export __oncreatesessiondescriptionfailure__
 func __oncreatesessiondescriptionfailure__(target unsafe.Pointer, name *C.char, message *C.char) {
+	defer func() {
+		if err := recover(); err != nil {
+			logger_.Errorf("Unexpected error occurred: %v", err)
+			debug.PrintStack()
+		}
+	}()
+
 	ob := (*CreateSessionDescriptionObserver)(target)
-	if ob.OnFailure != nil {
+	if ob != nil && ob.OnFailure != nil {
 		ob.OnFailure(new(RTCError).Init(C.GoString(name), C.GoString(message)))
 	}
+	delete(observers_, uintptr(target))
 }
 
 //export __onsetsessiondescriptionsuccess__
 func __onsetsessiondescriptionsuccess__(target unsafe.Pointer) {
+	defer func() {
+		if err := recover(); err != nil {
+			logger_.Errorf("Unexpected error occurred: %v", err)
+			debug.PrintStack()
+		}
+	}()
+
 	ob := (*SetSessionDescriptionObserver)(target)
-	if ob.OnSuccess != nil {
+	if ob != nil && ob.OnSuccess != nil {
 		ob.OnSuccess()
 	}
+	delete(observers_, uintptr(target))
 }
 
 //export __onsetsessiondescriptionfailure__
 func __onsetsessiondescriptionfailure__(target unsafe.Pointer, name *C.char, message *C.char) {
+	defer func() {
+		if err := recover(); err != nil {
+			logger_.Errorf("Unexpected error occurred: %v", err)
+			debug.PrintStack()
+		}
+	}()
+
 	ob := (*SetSessionDescriptionObserver)(target)
-	if ob.OnFailure != nil {
+	if ob != nil && ob.OnFailure != nil {
 		ob.OnFailure(new(RTCError).Init(C.GoString(name), C.GoString(message)))
 	}
+	delete(observers_, uintptr(target))
 }
