@@ -86,3 +86,7 @@ func (me *RtpTransceiver) SetDirection(new_direction string) error {
 func (me *RtpTransceiver) Stop() {
 	C.RtpTransceiverStop(me.fd)
 }
+
+func (me *RtpTransceiver) Release() {
+	C.RtpTransceiverRelease(me.fd)
+}

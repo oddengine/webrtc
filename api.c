@@ -37,15 +37,22 @@ typedef void *(*__create_video_track_fptr__)(void *factory, void *track, const c
 typedef void *(*__peer_connection_add_track_fptr__)(void *pc, void *track, size_t size, void *streams, raw_rtc_error_t *err);
 typedef int (*__peer_connection_remove_track_fptr__)(void *pc, void *sender, raw_rtc_error_t *err);
 typedef void *(*__peer_connection_add_transceiver_fptr__)(void *pc, const char *media_type, raw_rtp_transceiver_init_t *init, raw_rtc_error_t *err);
-typedef void (*__peer_connection_create_offer_fptr__)(void *pc, void *observer, raw_create_session_description_observer_t *cb);
-typedef void (*__peer_connection_create_answer_fptr__)(void *pc, void *observer, raw_create_session_description_observer_t *cb);
-typedef void (*__peer_connection_set_local_description_fptr__)(void *pc, void *observer, raw_set_session_description_observer_t *cb, raw_session_description_t *desc);
-typedef void (*__peer_connection_set_remote_description_fptr__)(void *pc, void *observer, raw_set_session_description_observer_t *cb, raw_session_description_t *desc);
+typedef void (*__peer_connection_create_offer_fptr__)(void *pc, void *observer);
+typedef void (*__peer_connection_create_answer_fptr__)(void *pc, void *observer);
+typedef void (*__peer_connection_set_local_description_fptr__)(void *pc, void *observer, raw_session_description_t *desc);
+typedef void (*__peer_connection_set_remote_description_fptr__)(void *pc, void *observer, raw_session_description_t *desc);
 typedef int (*__peer_connection_add_ice_candidate_fptr__)(void *pc, raw_ice_candidate_t *candidate, raw_rtc_error_t *err);
 typedef void (*__peer_connection_get_receivers_fptr__)(void *pc, size_t *size, void **array);
 typedef void (*__peer_connection_get_senders_fptr__)(void *pc, size_t *size, void **array);
 typedef void (*__peer_connection_get_transceivers_fptr__)(void *pc, size_t *size, void **array);
 typedef void (*__peer_connection_close_fptr__)(void *pc);
+typedef void (*__peer_connection_release_fptr__)(void *pc);
+
+typedef void *(*__create_create_session_description_observer_fptr__)(void *fd, raw_create_session_description_observer_t *cb);
+typedef void (*__create_session_description_observer_release_fptr__)(void *observer);
+
+typedef void *(*__create_set_session_description_observer_fptr__)(void *fd, raw_set_session_description_observer_t *cb);
+typedef void (*__set_session_description_observer_release_fptr__)(void *observer);
 
 typedef const char *(*__media_stream_get_id_fptr__)(void *stream);
 typedef int (*__media_stream_add_track_fptr__)(void *stream, void *track);
@@ -54,6 +61,7 @@ typedef void (*__media_stream_get_audio_tracks_fptr__)(void *stream, size_t *siz
 typedef void (*__media_stream_get_video_tracks_fptr__)(void *stream, size_t *size, void **array);
 typedef void *(*__media_stream_find_audio_track_fptr__)(void *stream, const char *id);
 typedef void *(*__media_stream_find_video_track_fptr__)(void *stream, const char *id);
+typedef void (*__media_stream_release_fptr__)(void *stream);
 
 typedef const char *(*__media_stream_track_get_id_fptr__)(void *track);
 typedef const char *(*__media_stream_track_get_kind_fptr__)(void *track);
@@ -61,6 +69,9 @@ typedef int (*__media_stream_track_get_muted_fptr__)(void *track);
 typedef const char *(*__media_stream_track_get_state_fptr__)(void *track);
 typedef void *(*__media_stream_track_get_source_fptr__)(void *track);
 typedef void (*__media_stream_track_stop_fptr__)(void *track);
+typedef void (*__media_stream_track_release_fptr__)(void *track);
+
+typedef void (*__media_source_release_fptr__)(void *source);
 
 typedef const char *(*__rtp_transceiver_get_direction_fptr__)(void *transceiver);
 typedef const char *(*__rtp_transceiver_get_mid_fptr__)(void *transceiver);
@@ -69,11 +80,13 @@ typedef void *(*__rtp_transceiver_get_sender_fptr__)(void *transceiver);
 typedef void (*__rtp_transceiver_set_codec_preferences_fptr__)(void *transceiver, void **codecs, size_t size);
 typedef int (*__rtp_transceiver_set_direction_fptr__)(void *transceiver, const char *new_direction, raw_rtc_error_t *err);
 typedef void (*__rtp_transceiver_stop_fptr__)(void *transceiver);
+typedef void (*__rtp_transceiver_release_fptr__)(void *transceiver);
 
 typedef void *(*__rtp_receiver_get_track_fptr__)(void *receiver);
 typedef void (*__rtp_receiver_get_streams_fptr__)(void *receiver, size_t *size, void **array);
 typedef void (*__rtp_receiver_get_parameters_fptr__)(void *receiver, void *parameters);
 typedef void (*__rtp_receiver_get_stats_fptr__)(void *receiver, void *stats);
+typedef void (*__rtp_receiver_release_fptr__)(void *receiver);
 
 typedef int (*__rtp_sender_set_track_fptr__)(void *sender, void *track);
 typedef void *(*__rtp_sender_get_track_fptr__)(void *sender);
@@ -82,6 +95,7 @@ typedef void (*__rtp_sender_get_streams_fptr__)(void *sender, size_t *size, void
 typedef void (*__rtp_sender_set_parameters_fptr__)(void *sender, void *parameters);
 typedef void (*__rtp_sender_get_parameters_fptr__)(void *sender, void *parameters);
 typedef void (*__rtp_sender_get_stats_fptr__)(void *sender, void *stats);
+typedef void (*__rtp_sender_release_fptr__)(void *sender);
 
 __initialize_library_fptr__ __initialize_library__;
 
@@ -113,6 +127,13 @@ __peer_connection_get_receivers_fptr__ __peer_connection_get_receivers__;
 __peer_connection_get_senders_fptr__ __peer_connection_get_senders__;
 __peer_connection_get_transceivers_fptr__ __peer_connection_get_transceivers__;
 __peer_connection_close_fptr__ __peer_connection_close__;
+__peer_connection_release_fptr__ __peer_connection_release__;
+
+__create_create_session_description_observer_fptr__ __create_create_session_description_observer__;
+__create_session_description_observer_release_fptr__ __create_session_description_observer_release__;
+
+__create_set_session_description_observer_fptr__ __create_set_session_description_observer__;
+__set_session_description_observer_release_fptr__ __set_session_description_observer_release__;
 
 __media_stream_get_id_fptr__ __media_stream_get_id__;
 __media_stream_add_track_fptr__ __media_stream_add_track__;
@@ -121,6 +142,7 @@ __media_stream_get_audio_tracks_fptr__ __media_stream_get_audio_tracks__;
 __media_stream_get_video_tracks_fptr__ __media_stream_get_video_tracks__;
 __media_stream_find_audio_track_fptr__ __media_stream_find_audio_track__;
 __media_stream_find_video_track_fptr__ __media_stream_find_video_track__;
+__media_stream_release_fptr__ __media_stream_release__;
 
 __media_stream_track_get_id_fptr__ __media_stream_track_get_id__;
 __media_stream_track_get_kind_fptr__ __media_stream_track_get_kind__;
@@ -128,6 +150,9 @@ __media_stream_track_get_muted_fptr__ __media_stream_track_get_muted__;
 __media_stream_track_get_state_fptr__ __media_stream_track_get_state__;
 __media_stream_track_get_source_fptr__ __media_stream_track_get_source__;
 __media_stream_track_stop_fptr__ __media_stream_track_stop__;
+__media_stream_track_release_fptr__ __media_stream_track_release__;
+
+__media_source_release_fptr__ __media_source_release__;
 
 __rtp_transceiver_get_direction_fptr__ __rtp_transceiver_get_direction__;
 __rtp_transceiver_get_mid_fptr__ __rtp_transceiver_get_mid__;
@@ -136,11 +161,13 @@ __rtp_transceiver_get_sender_fptr__ __rtp_transceiver_get_sender__;
 __rtp_transceiver_set_codec_preferences_fptr__ __rtp_transceiver_set_codec_preferences__;
 __rtp_transceiver_set_direction_fptr__ __rtp_transceiver_set_direction__;
 __rtp_transceiver_stop_fptr__ __rtp_transceiver_stop__;
+__rtp_transceiver_release_fptr__ __rtp_transceiver_release__;
 
 __rtp_receiver_get_track_fptr__ __rtp_receiver_get_track__;
 __rtp_receiver_get_streams_fptr__ __rtp_receiver_get_streams__;
 __rtp_receiver_get_parameters_fptr__ __rtp_receiver_get_parameters__;
 __rtp_receiver_get_stats_fptr__ __rtp_receiver_get_stats__;
+__rtp_receiver_release_fptr__ __rtp_receiver_release__;
 
 __rtp_sender_set_track_fptr__ __rtp_sender_set_track__;
 __rtp_sender_get_track_fptr__ __rtp_sender_get_track__;
@@ -149,6 +176,7 @@ __rtp_sender_get_streams_fptr__ __rtp_sender_get_streams__;
 __rtp_sender_set_parameters_fptr__ __rtp_sender_set_parameters__;
 __rtp_sender_get_parameters_fptr__ __rtp_sender_get_parameters__;
 __rtp_sender_get_stats_fptr__ __rtp_sender_get_stats__;
+__rtp_sender_release_fptr__ __rtp_sender_release__;
 
 raw_default_writer_observer_t *__logger_writer_observer__;
 extern void __onloggerwriterresize__(void *target);
@@ -218,6 +246,13 @@ int InitializeLibrary(const char *file, raw_rtc_constraints_t constraints)
     __peer_connection_get_senders__ = (__peer_connection_get_senders_fptr__)dlsym(handle, "PeerConnectionGetSenders");
     __peer_connection_get_transceivers__ = (__peer_connection_get_transceivers_fptr__)dlsym(handle, "PeerConnectionGetTransceivers");
     __peer_connection_close__ = (__peer_connection_close_fptr__)dlsym(handle, "PeerConnectionClose");
+    __peer_connection_release__ = (__peer_connection_release_fptr__)dlsym(handle, "PeerConnectionRelease");
+
+    __create_create_session_description_observer__ = (__create_create_session_description_observer_fptr__)dlsym(handle, "CreateCreateSessionDescriptionObserver");
+    __create_session_description_observer_release__ = (__create_session_description_observer_release_fptr__)dlsym(handle, "CreateSessionDescriptionObserverRelease");
+
+    __create_set_session_description_observer__ = (__create_set_session_description_observer_fptr__)dlsym(handle, "CreateSetSessionDescriptionObserver");
+    __set_session_description_observer_release__ = (__set_session_description_observer_release_fptr__)dlsym(handle, "SetSessionDescriptionObserverRelease");
 
     __media_stream_get_id__ = (__media_stream_get_id_fptr__)dlsym(handle, "MediaStreamGetID");
     __media_stream_add_track__ = (__media_stream_add_track_fptr__)dlsym(handle, "MediaStreamAddTrack");
@@ -226,6 +261,7 @@ int InitializeLibrary(const char *file, raw_rtc_constraints_t constraints)
     __media_stream_get_video_tracks__ = (__media_stream_get_video_tracks_fptr__)dlsym(handle, "MediaStreamGetVideoTracks");
     __media_stream_find_audio_track__ = (__media_stream_find_audio_track_fptr__)dlsym(handle, "MediaStreamGetAudioTrackByID");
     __media_stream_find_video_track__ = (__media_stream_find_video_track_fptr__)dlsym(handle, "MediaStreamGetVideoTrackByID");
+    __media_stream_release__ = (__media_stream_release_fptr__)dlsym(handle, "MediaStreamRelease");
 
     __media_stream_track_get_id__ = (__media_stream_track_get_id_fptr__)dlsym(handle, "MediaStreamTrackGetID");
     __media_stream_track_get_kind__ = (__media_stream_track_get_kind_fptr__)dlsym(handle, "MediaStreamTrackGetKind");
@@ -233,6 +269,9 @@ int InitializeLibrary(const char *file, raw_rtc_constraints_t constraints)
     __media_stream_track_get_state__ = (__media_stream_track_get_state_fptr__)dlsym(handle, "MediaStreamTrackGetState");
     __media_stream_track_get_source__ = (__media_stream_track_get_source_fptr__)dlsym(handle, "MediaStreamTrackGetSource");
     __media_stream_track_stop__ = (__media_stream_track_stop_fptr__)dlsym(handle, "MediaStreamTrackStop");
+    __media_stream_track_release__ = (__media_stream_track_release_fptr__)dlsym(handle, "MediaStreamTrackRelease");
+
+    __media_source_release__ = (__media_source_release_fptr__)dlsym(handle, "MediaSourceRelease");
 
     __rtp_transceiver_get_direction__ = (__rtp_transceiver_get_direction_fptr__)dlsym(handle, "RtpTransceiverGetDirection");
     __rtp_transceiver_get_mid__ = (__rtp_transceiver_get_mid_fptr__)dlsym(handle, "RtpTransceiverGetMid");
@@ -241,11 +280,13 @@ int InitializeLibrary(const char *file, raw_rtc_constraints_t constraints)
     __rtp_transceiver_set_codec_preferences__ = (__rtp_transceiver_set_codec_preferences_fptr__)dlsym(handle, "RtpTransceiverSetCodecPreferences");
     __rtp_transceiver_set_direction__ = (__rtp_transceiver_set_direction_fptr__)dlsym(handle, "RtpTransceiverSetDirection");
     __rtp_transceiver_stop__ = (__rtp_transceiver_stop_fptr__)dlsym(handle, "RtpTransceiverStop");
+    __rtp_transceiver_release__ = (__rtp_transceiver_release_fptr__)dlsym(handle, "RtpTransceiverRelease");
 
     __rtp_receiver_get_track__ = (__rtp_receiver_get_track_fptr__)dlsym(handle, "RtpReceiverGetTrack");
     __rtp_receiver_get_streams__ = (__rtp_receiver_get_streams_fptr__)dlsym(handle, "RtpReceiverGetStreams");
     __rtp_receiver_get_parameters__ = (__rtp_receiver_get_parameters_fptr__)dlsym(handle, "RtpReceiverGetParameters");
     __rtp_receiver_get_stats__ = (__rtp_receiver_get_stats_fptr__)dlsym(handle, "RtpReceiverGetStats");
+    __rtp_receiver_release__ = (__rtp_receiver_release_fptr__)dlsym(handle, "RtpReceiverRelease");
 
     __rtp_sender_set_track__ = (__rtp_sender_set_track_fptr__)dlsym(handle, "RtpSenderSetTrack");
     __rtp_sender_get_track__ = (__rtp_sender_get_track_fptr__)dlsym(handle, "RtpSenderGetTrack");
@@ -254,6 +295,7 @@ int InitializeLibrary(const char *file, raw_rtc_constraints_t constraints)
     __rtp_sender_set_parameters__ = (__rtp_sender_set_parameters_fptr__)dlsym(handle, "RtpSenderSetParameters");
     __rtp_sender_get_parameters__ = (__rtp_sender_get_parameters_fptr__)dlsym(handle, "RtpSenderGetParameters");
     __rtp_sender_get_stats__ = (__rtp_sender_get_stats_fptr__)dlsym(handle, "RtpSenderGetStats");
+    __rtp_sender_release__ = (__rtp_sender_release_fptr__)dlsym(handle, "RtpSenderRelease");
 
     __logger_writer_observer__ = malloc(sizeof(raw_default_writer_observer_t));
     __logger_writer_observer__->onresize = __onloggerwriterresize__;
@@ -379,25 +421,25 @@ void *PeerConnectionAddTransceiver(void *pc, const char *media_type, raw_rtp_tra
 void PeerConnectionCreateOffer(void *pc, void *observer)
 {
     // __debugf__(6, "===> PeerConnectionCreateOffer()");
-    __peer_connection_create_offer__(pc, observer, __create_session_description_observer__);
+    __peer_connection_create_offer__(pc, observer);
 }
 
 void PeerConnectionCreateAnswer(void *pc, void *observer)
 {
     // __debugf__(6, "===> PeerConnectionCreateAnswer()");
-    __peer_connection_create_answer__(pc, observer, __create_session_description_observer__);
+    __peer_connection_create_answer__(pc, observer);
 }
 
 void PeerConnectionSetLocalDescription(void *pc, void *observer, raw_session_description_t *desc)
 {
     // __debugf__(6, "===> PeerConnectionSetLocalDescription(type=%s, sdp=\n%s", desc->typ, desc->sdp);
-    __peer_connection_set_local_description__(pc, observer, __set_session_description_observer__, desc);
+    __peer_connection_set_local_description__(pc, observer, desc);
 }
 
 void PeerConnectionSetRemoteDescription(void *pc, void *observer, raw_session_description_t *desc)
 {
     // __debugf__(6, "===> PeerConnectionSetRemoteDescription(type=%s, sdp=\n%s", desc->typ, desc->sdp);
-    __peer_connection_set_remote_description__(pc, observer, __set_session_description_observer__, desc);
+    __peer_connection_set_remote_description__(pc, observer, desc);
 }
 
 int PeerConnectionAddIceCandidate(void *pc, raw_ice_candidate_t *candidate, raw_rtc_error_t *err)
@@ -428,6 +470,36 @@ void PeerConnectionClose(void *pc)
 {
     // __debugf__(6, "===> PeerConnectionClose()");
     __peer_connection_close__(pc);
+}
+
+void PeerConnectionRelease(void *pc)
+{
+    // __debugf__(6, "===> PeerConnectionRelease()");
+    __peer_connection_release__(pc);
+}
+
+void *CreateCreateSessionDescriptionObserver(void *fd)
+{
+    // __debugf__(6, "===> CreateCreateSessionDescriptionObserver()");
+    __create_create_session_description_observer__(fd, __create_session_description_observer__);
+}
+
+void CreateSessionDescriptionObserverRelease(void *observer)
+{
+    // __debugf__(6, "===> CreateSessionDescriptionObserverRelease()");
+    __create_session_description_observer_release__(observer);
+}
+
+void *CreateSetSessionDescriptionObserver(void *fd)
+{
+    // __debugf__(6, "===> CreateSetSessionDescriptionObserver()");
+    __create_set_session_description_observer__(fd, __set_session_description_observer__);
+}
+
+void SetSessionDescriptionObserverRelease(void *observer)
+{
+    // __debugf__(6, "===> SetSessionDescriptionObserverRelease()");
+    __set_session_description_observer_release__(observer);
 }
 
 const char *MediaStreamGetID(void *stream)
@@ -472,6 +544,12 @@ void *MediaStreamFindVideoTrack(void *stream, const char *id)
     return __media_stream_find_video_track__(stream, id);
 }
 
+void MediaStreamRelease(void *stream)
+{
+    // __debugf__(6, "===> MediaStreamRelease()");
+    return __media_stream_release__(stream);
+}
+
 const char *MediaStreamTrackGetID(void *track)
 {
     // __debugf__(6, "===> MediaStreamTrackGetID()");
@@ -506,6 +584,18 @@ void MediaStreamTrackStop(void *track)
 {
     // __debugf__(6, "===> MediaStreamTrackStop()");
     __media_stream_track_stop__(track);
+}
+
+void MediaStreamTrackRelease(void *track)
+{
+    // __debugf__(6, "===> MediaStreamTrackRelease()");
+    __media_stream_track_release__(track);
+}
+
+void MediaSourceRelease(void *source)
+{
+    // __debugf__(6, "===> MediaSourceRelease()");
+    __media_source_release__(source);
 }
 
 const char *RtpTransceiverGetDirection(void *transceiver)
@@ -550,6 +640,12 @@ void RtpTransceiverStop(void *transceiver)
     __rtp_transceiver_stop__(transceiver);
 }
 
+void RtpTransceiverRelease(void *transceiver)
+{
+    // __debugf__(6, "===> RtpTransceiverRelease()");
+    __rtp_transceiver_release__(transceiver);
+}
+
 void *RtpReceiverGetTrack(void *receiver)
 {
     // __debugf__(6, "===> RtpReceiverGetTrack()");
@@ -572,6 +668,12 @@ void RtpReceiverGetStats(void *receiver, void *stats)
 {
     // __debugf__(6, "===> RtpReceiverGetStats()");
     __rtp_receiver_get_stats__(receiver, stats);
+}
+
+void RtpReceiverRelease(void *receiver)
+{
+    // __debugf__(6, "===> RtpReceiverRelease()");
+    __rtp_receiver_release__(receiver);
 }
 
 int RtpSenderSetTrack(void *sender, void *track)
@@ -614,4 +716,10 @@ void RtpSenderGetStats(void *sender, void *stats)
 {
     // __debugf__(6, "===> RtpSenderGetStats()");
     __rtp_sender_get_stats__(sender, stats);
+}
+
+void RtpSenderRelease(void *sender)
+{
+    // __debugf__(6, "===> RtpSenderRelease()");
+    __rtp_sender_release__(sender);
 }

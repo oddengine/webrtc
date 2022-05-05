@@ -204,7 +204,9 @@ func __onsignalingchange__(target unsafe.Pointer, new_state *C.char) {
 
 	pc := (*PeerConnection)(target)
 	if pc != nil {
+		println("OnSignalingChange(in)")
 		pc.OnSignalingChange(C.GoString(new_state))
+		println("OnSignalingChange(out)")
 	}
 }
 
@@ -219,7 +221,9 @@ func __ondatachannel__(target unsafe.Pointer, data_channel unsafe.Pointer) {
 
 	pc := (*PeerConnection)(target)
 	if pc != nil {
+		println("OnDataChannel(in)")
 		pc.OnDataChannel(data_channel)
+		println("OnDataChannel(out)")
 	}
 }
 
@@ -234,7 +238,9 @@ func __onrenegotiationneeded__(target unsafe.Pointer) {
 
 	pc := (*PeerConnection)(target)
 	if pc != nil {
+		println("OnRenegotiationNeeded(in)")
 		pc.OnRenegotiationNeeded()
+		println("OnRenegotiationNeeded(out)")
 	}
 }
 
@@ -249,7 +255,9 @@ func __onconnectionchange__(target unsafe.Pointer, new_state *C.char) {
 
 	pc := (*PeerConnection)(target)
 	if pc != nil {
+		println("OnConnectionChange(in)")
 		pc.OnConnectionChange(C.GoString(new_state))
+		println("OnConnectionChange(out)")
 	}
 }
 
@@ -264,7 +272,9 @@ func __oniceconnectionchange__(target unsafe.Pointer, new_state *C.char) {
 
 	pc := (*PeerConnection)(target)
 	if pc != nil {
+		println("OnIceConnectionChange(in)")
 		pc.OnIceConnectionChange(C.GoString(new_state))
+		println("OnIceConnectionChange(out)")
 	}
 }
 
@@ -279,7 +289,9 @@ func __onicegatheringchange__(target unsafe.Pointer, new_state *C.char) {
 
 	pc := (*PeerConnection)(target)
 	if pc != nil {
+		println("OnIceGatheringChange(in)")
 		pc.OnIceGatheringChange(C.GoString(new_state))
+		println("OnIceGatheringChange(out)")
 	}
 }
 
@@ -294,11 +306,13 @@ func __onicecandidate__(target unsafe.Pointer, candidate *C.char, sdp_mid *C.cha
 
 	pc := (*PeerConnection)(target)
 	if pc != nil {
+		println("OnIceCandidate(in)")
 		pc.OnIceCandidate(&IceCandidate{
 			Candidate:     C.GoString(candidate),
 			SDPMid:        C.GoString(sdp_mid),
 			SDPMLineIndex: int(sdp_mline_index),
 		})
+		println("OnIceCandidate(out)")
 	}
 }
 
@@ -313,7 +327,9 @@ func __onicecandidateerror__(target unsafe.Pointer, address *C.char, port C.int,
 
 	pc := (*PeerConnection)(target)
 	if pc != nil {
+		println("OnIceCandidateError(in)")
 		pc.OnIceCandidateError(C.GoString(address), int(port), C.GoString(url), int(error_code), C.GoString(error_text))
+		println("OnIceCandidateError(out)")
 	}
 }
 
@@ -335,7 +351,9 @@ func __ontrack__(target unsafe.Pointer, transceiver unsafe.Pointer) {
 
 	pc := (*PeerConnection)(target)
 	if pc != nil {
+		println("OnTrack(in)")
 		pc.OnTrack(track, streams...)
+		println("OnTrack(out)")
 	}
 }
 
@@ -348,6 +366,7 @@ func __oncreatesessiondescriptionsuccess__(target unsafe.Pointer, typ *C.char, s
 		}
 	}()
 
+	println("OnCreateSessionDescriptionSuccess(in)")
 	ob := (*CreateSessionDescriptionObserver)(target)
 	if ob != nil && ob.OnSuccess != nil {
 		ob.OnSuccess(SessionDescription{
@@ -355,7 +374,8 @@ func __oncreatesessiondescriptionsuccess__(target unsafe.Pointer, typ *C.char, s
 			SDP:  C.GoString(sdp),
 		})
 	}
-	delete(observers_, uintptr(target))
+	ob.release()
+	println("OnCreateSessionDescriptionSuccess(out)")
 }
 
 //export __oncreatesessiondescriptionfailure__
@@ -367,11 +387,13 @@ func __oncreatesessiondescriptionfailure__(target unsafe.Pointer, name *C.char, 
 		}
 	}()
 
+	println("OnCreateSessionDescriptionFailure(in)")
 	ob := (*CreateSessionDescriptionObserver)(target)
 	if ob != nil && ob.OnFailure != nil {
 		ob.OnFailure(new(RTCError).Init(C.GoString(name), C.GoString(message)))
 	}
-	delete(observers_, uintptr(target))
+	ob.release()
+	println("OnCreateSessionDescriptionFailure(out)")
 }
 
 //export __onsetsessiondescriptionsuccess__
@@ -383,11 +405,13 @@ func __onsetsessiondescriptionsuccess__(target unsafe.Pointer) {
 		}
 	}()
 
+	println("OnSetSessionDescriptionSuccess(in)")
 	ob := (*SetSessionDescriptionObserver)(target)
 	if ob != nil && ob.OnSuccess != nil {
 		ob.OnSuccess()
 	}
-	delete(observers_, uintptr(target))
+	ob.release()
+	println("OnSetSessionDescriptionSuccess(out)")
 }
 
 //export __onsetsessiondescriptionfailure__
@@ -399,9 +423,11 @@ func __onsetsessiondescriptionfailure__(target unsafe.Pointer, name *C.char, mes
 		}
 	}()
 
+	println("OnSetSessionDescriptionFailure(in)")
 	ob := (*SetSessionDescriptionObserver)(target)
 	if ob != nil && ob.OnFailure != nil {
 		ob.OnFailure(new(RTCError).Init(C.GoString(name), C.GoString(message)))
 	}
-	delete(observers_, uintptr(target))
+	ob.release()
+	println("OnSetSessionDescriptionFailure(out)")
 }

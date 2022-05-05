@@ -110,3 +110,7 @@ func (me *MediaStream) FindVideoTrack(id string) *MediaStreamTrack {
 	}
 	return track
 }
+
+func (me *MediaStream) Release() {
+	C.MediaStreamRelease(me.fd)
+}

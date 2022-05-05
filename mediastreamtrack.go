@@ -61,3 +61,7 @@ func (me *MediaStreamTrack) GetSource() *MediaSource {
 func (me *MediaStreamTrack) Stop() {
 	C.MediaStreamTrackStop(me.fd)
 }
+
+func (me *MediaStreamTrack) Release() {
+	C.MediaStreamTrackRelease(me.fd)
+}

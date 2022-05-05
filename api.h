@@ -40,6 +40,13 @@ void PeerConnectionGetReceivers(void *pc, size_t *size, void **array);
 void PeerConnectionGetSenders(void *pc, size_t *size, void **array);
 void PeerConnectionGetTransceivers(void *pc, size_t *size, void **array);
 void PeerConnectionClose(void *pc);
+void PeerConnectionRelease(void *pc);
+
+void *CreateCreateSessionDescriptionObserver(void *fd);
+void CreateSessionDescriptionObserverRelease(void *observer);
+
+void *CreateSetSessionDescriptionObserver(void *fd);
+void SetSessionDescriptionObserverRelease(void *observer);
 
 const char *MediaStreamGetID(void *stream);
 int MediaStreamAddTrack(void *stream, void *track);
@@ -48,6 +55,7 @@ void MediaStreamGetAudioTracks(void *stream, size_t *size, void **array);
 void MediaStreamGetVideoTracks(void *stream, size_t *size, void **array);
 void *MediaStreamFindAudioTrack(void *stream, const char *id);
 void *MediaStreamFindVideoTrack(void *stream, const char *id);
+void MediaStreamRelease(void *stream);
 
 const char *MediaStreamTrackGetID(void *track);
 const char *MediaStreamTrackGetKind(void *track);
@@ -55,6 +63,9 @@ int MediaStreamTrackGetMuted(void *track);
 const char *MediaStreamTrackGetState(void *track);
 void *MediaStreamTrackGetSource(void *track);
 void MediaStreamTrackStop(void *track);
+void MediaStreamTrackRelease(void *track);
+
+void MediaSourceRelease(void *source);
 
 const char *RtpTransceiverGetDirection(void *transceiver);
 const char *RtpTransceiverGetMid(void *transceiver);
@@ -63,11 +74,13 @@ void *RtpTransceiverGetSender(void *transceiver);
 void RtpTransceiverSetCodecPreferences(void *transceiver, void **codecs, size_t size);
 int RtpTransceiverSetDirection(void *transceiver, const char *new_direction, raw_rtc_error_t *err);
 void RtpTransceiverStop(void *transceiver);
+void RtpTransceiverRelease(void *transceiver);
 
 void *RtpReceiverGetTrack(void *receiver);
 void RtpReceiverGetStreams(void *receiver, size_t *size, void **array);
 void RtpReceiverGetParameters(void *receiver, void *parameters);
 void RtpReceiverGetStats(void *receiver, void *stats);
+void RtpReceiverRelease(void *receiver);
 
 int RtpSenderSetTrack(void *sender, void *track);
 void *RtpSenderGetTrack(void *sender);
@@ -76,5 +89,6 @@ void RtpSenderGetStreams(void *sender, size_t *size, void **array);
 void RtpSenderSetParameters(void *sender, void *parameters);
 void RtpSenderGetParameters(void *sender, void *parameters);
 void RtpSenderGetStats(void *sender, void *stats);
+void RtpSenderRelease(void *sender);
 
 #endif // RAWRTC_API_H_

@@ -78,3 +78,7 @@ func (me *RtpSender) GetParameters() interface{} {
 func (me *RtpSender) GetStats() map[string]interface{} {
 	return nil
 }
+
+func (me *RtpSender) Release() {
+	C.RtpSenderRelease(me.fd)
+}

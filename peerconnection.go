@@ -10,7 +10,17 @@ package rawrtc
 import "C"
 import (
 	"fmt"
+	"time"
 	"unsafe"
+)
+
+const (
+	PeerConnectionStateNew          = "new"
+	PeerConnectionStateConnecting   = "connecting"
+	PeerConnectionStateConnected    = "connected"
+	PeerConnectionStateDisconnected = "disconnected"
+	PeerConnectionStateFailed       = "failed"
+	PeerConnectionStateClosed       = "closed"
 )
 
 type RTCConfiguration struct {
@@ -97,15 +107,15 @@ func (me *PeerConnection) AddTransceiver(media_type string, init RtpTransceiverI
 }
 
 func (me *PeerConnection) CreateOffer(observer *CreateSessionDescriptionObserver) {
-	ob := unsafe.Pointer(observer)
-	observers_[uintptr(ob)] = observer
-	C.PeerConnectionCreateOffer(me.fd, ob)
+	ptr := uintptr(unsafe.Pointer(observer))
+	observers_[ptr] = observer
+	C.PeerConnectionCreateOffer(me.fd, observer.fd)
 }
 
 func (me *PeerConnection) CreateAnswer(observer *CreateSessionDescriptionObserver) {
-	ob := unsafe.Pointer(observer)
-	observers_[uintptr(ob)] = observer
-	C.PeerConnectionCreateAnswer(me.fd, ob)
+	ptr := uintptr(unsafe.Pointer(observer))
+	observers_[ptr] = observer
+	C.PeerConnectionCreateAnswer(me.fd, observer.fd)
 }
 
 func (me *PeerConnection) SetLocalDescription(observer *SetSessionDescriptionObserver, desc *SessionDescription) {
@@ -117,9 +127,9 @@ func (me *PeerConnection) SetLocalDescription(observer *SetSessionDescriptionObs
 		C.free(unsafe.Pointer(description.sdp))
 	}()
 
-	ob := unsafe.Pointer(observer)
-	observers_[uintptr(ob)] = observer
-	C.PeerConnectionSetLocalDescription(me.fd, ob, &description)
+	ptr := uintptr(unsafe.Pointer(observer))
+	observers_[ptr] = observer
+	C.PeerConnectionSetLocalDescription(me.fd, observer.fd, &description)
 }
 
 func (me *PeerConnection) SetRemoteDescription(observer *SetSessionDescriptionObserver, desc *SessionDescription) {
@@ -131,9 +141,9 @@ func (me *PeerConnection) SetRemoteDescription(observer *SetSessionDescriptionOb
 		C.free(unsafe.Pointer(description.sdp))
 	}()
 
-	ob := unsafe.Pointer(observer)
-	observers_[uintptr(ob)] = observer
-	C.PeerConnectionSetRemoteDescription(me.fd, ob, &description)
+	ptr := uintptr(unsafe.Pointer(observer))
+	observers_[ptr] = observer
+	C.PeerConnectionSetRemoteDescription(me.fd, observer.fd, &description)
 }
 
 func (me *PeerConnection) AddIceCandidate(candidate *IceCandidate) error {
@@ -212,4 +222,13 @@ func (me *PeerConnection) GetStats() map[string]interface{} {
 
 func (me *PeerConnection) Close() {
 	C.PeerConnectionClose(me.fd)
+}
+
+func (me *PeerConnection) Release() {
+	// TODO(spencer@lau): Since we must call this function in or after event handler of
+	// PeerConnectionState::kClosed, we do it asynchronously and wait for 5 seconds.
+	go func() {
+		time.Sleep(5 * time.Second)
+		C.PeerConnectionRelease(me.fd)
+	}()
 }

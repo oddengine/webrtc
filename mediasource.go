@@ -27,3 +27,7 @@ func (me *MediaSource) Remote() bool {
 func (me *MediaSource) State(track *MediaStreamTrack) string {
 	return ""
 }
+
+func (me *MediaSource) Release() {
+	C.MediaSourceRelease(me.fd)
+}
