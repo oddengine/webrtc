@@ -481,7 +481,7 @@ void PeerConnectionRelease(void *pc)
 void *CreateCreateSessionDescriptionObserver(void *fd)
 {
     // __debugf__(6, "===> CreateCreateSessionDescriptionObserver()");
-    __create_create_session_description_observer__(fd, __create_session_description_observer__);
+    return __create_create_session_description_observer__(fd, __create_session_description_observer__);
 }
 
 void CreateSessionDescriptionObserverRelease(void *observer)
@@ -493,7 +493,7 @@ void CreateSessionDescriptionObserverRelease(void *observer)
 void *CreateSetSessionDescriptionObserver(void *fd)
 {
     // __debugf__(6, "===> CreateSetSessionDescriptionObserver()");
-    __create_set_session_description_observer__(fd, __set_session_description_observer__);
+    return __create_set_session_description_observer__(fd, __set_session_description_observer__);
 }
 
 void SetSessionDescriptionObserverRelease(void *observer)
