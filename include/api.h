@@ -1,6 +1,7 @@
 #ifndef EXAMPLES_RAWRTC_API_H_
 #define EXAMPLES_RAWRTC_API_H_
 
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
