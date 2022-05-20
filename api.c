@@ -17,6 +17,8 @@
 HMODULE handle;
 
 typedef int (*__initialize_library_fptr__)(raw_rtc_constraints_t constraints);
+typedef void *(*__calloc_fptr__)(size_t size);
+typedef void (*__free_fptr__)(void *p);
 
 typedef void *(*__create_default_logger_factory_fptr__)(void *fd, void *out, int level);
 typedef void *(*__create_default_logger_fptr__)(void *fd, void *factory, const char *scope);
@@ -98,6 +100,8 @@ typedef void (*__rtp_sender_get_stats_fptr__)(void *sender, void *stats);
 typedef void (*__rtp_sender_release_fptr__)(void *sender);
 
 __initialize_library_fptr__ __initialize_library__;
+__calloc_fptr__ __calloc__;
+__free_fptr__ __free__;
 
 __create_default_logger_factory_fptr__ __create_default_logger_factory__;
 __create_default_logger_fptr__ __create_default_logger__;
@@ -217,6 +221,8 @@ int InitializeLibrary(const char *file, raw_rtc_constraints_t constraints)
     }
 
     __initialize_library__ = (__initialize_library_fptr__)dlsym(handle, "InitializeLibrary");
+    __calloc__ = (__calloc_fptr__)dlsym(handle, "Calloc");
+    __free__ = (__free_fptr__)dlsym(handle, "Free");
 
     __create_default_logger_factory__ = (__create_default_logger_factory_fptr__)dlsym(handle, "CreateDefaultLoggerFactory");
     __create_default_logger__ = (__create_default_logger_fptr__)dlsym(handle, "CreateDefaultLogger");
@@ -320,6 +326,18 @@ int InitializeLibrary(const char *file, raw_rtc_constraints_t constraints)
     __set_session_description_observer__->onfailure = __onsetsessiondescriptionfailure__;
 
     return __initialize_library__(constraints);
+}
+
+void *Calloc(size_t size)
+{
+    // __debugf__(6, "===> Calloc(%d)", size);
+    return __calloc__(size);
+}
+
+void Free(void *p)
+{
+    // __debugf__(6, "===> Free(%p)", p);
+    return __free__(p);
 }
 
 void *CreateDefaultLoggerFactory(void *fd, void *out, int level)

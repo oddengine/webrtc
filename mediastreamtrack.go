@@ -27,7 +27,7 @@ func (me *MediaStreamTrack) Init() *MediaStreamTrack {
 func (me *MediaStreamTrack) ID() string {
 	id := C.MediaStreamTrackGetID(me.fd)
 	defer func() {
-		C.free(unsafe.Pointer(id))
+		C.Free(unsafe.Pointer(id))
 	}()
 	return C.GoString(id)
 }
@@ -35,7 +35,7 @@ func (me *MediaStreamTrack) ID() string {
 func (me *MediaStreamTrack) Kind() string {
 	kind := C.MediaStreamTrackGetKind(me.fd)
 	defer func() {
-		C.free(unsafe.Pointer(kind))
+		C.Free(unsafe.Pointer(kind))
 	}()
 	return C.GoString(kind)
 }

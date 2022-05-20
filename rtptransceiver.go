@@ -28,7 +28,7 @@ func (me *RtpTransceiver) Direction() string {
 func (me *RtpTransceiver) Mid() string {
 	mid := C.RtpTransceiverGetMid(me.fd)
 	defer func() {
-		C.free(unsafe.Pointer(mid))
+		C.Free(unsafe.Pointer(mid))
 	}()
 	return C.GoString(mid)
 }

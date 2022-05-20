@@ -55,6 +55,16 @@ typedef struct {
   void (*onfailure)(void* target, const char* name, const char* message);
 } raw_set_session_description_observer_t;
 
-void* raw_calloc(size_t size);
+inline void* raw_calloc(size_t size) {
+  void* p = malloc(size);
+  if (p) {
+    memset(p, 0, size);
+  }
+  return p;
+}
+
+inline void raw_free(void* p) {
+  free(p);
+}
 
 #endif  // EXAMPLES_RAWRTC_API_H_

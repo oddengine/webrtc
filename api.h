@@ -11,6 +11,8 @@
 #include "include/session_description.h"
 
 int InitializeLibrary(const char *file, raw_rtc_constraints_t constraints);
+void *Calloc(size_t size);
+void Free(void *p);
 
 void *CreateDefaultLoggerFactory(void *fd, void *out, int level);
 void *CreateDefaultLogger(void *fd, void *factory, const char *scope);

@@ -58,7 +58,7 @@ func (me *RtpSender) Streams() []string {
 	for i := 0; i < int(size); i++ {
 		item := (*C.char)(array[i])
 		defer func(item *C.char) {
-			C.free(unsafe.Pointer(item))
+			C.Free(unsafe.Pointer(item))
 		}(item)
 
 		id := C.GoString(item)

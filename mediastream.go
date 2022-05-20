@@ -26,7 +26,7 @@ func (me *MediaStream) Init() *MediaStream {
 func (me *MediaStream) ID() string {
 	id := C.MediaStreamGetID(me.fd)
 	defer func() {
-		C.free(unsafe.Pointer(id))
+		C.Free(unsafe.Pointer(id))
 	}()
 	return C.GoString(id)
 }
