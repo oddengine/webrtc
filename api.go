@@ -11,6 +11,7 @@ import "C"
 import (
 	"fmt"
 	"runtime/debug"
+	"sync"
 	"unsafe"
 )
 
@@ -41,6 +42,7 @@ const (
 var (
 	factory_   ILoggerFactory
 	logger_    ILogger
+	mtx_       sync.Mutex
 	observers_ = make(map[uintptr]interface{})
 )
 

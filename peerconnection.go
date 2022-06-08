@@ -107,14 +107,18 @@ func (me *PeerConnection) AddTransceiver(media_type string, init RtpTransceiverI
 }
 
 func (me *PeerConnection) CreateOffer(observer *CreateSessionDescriptionObserver) {
+	mtx_.Lock()
 	ptr := uintptr(unsafe.Pointer(observer))
 	observers_[ptr] = observer
+	mtx_.Unlock()
 	C.PeerConnectionCreateOffer(me.fd, observer.fd)
 }
 
 func (me *PeerConnection) CreateAnswer(observer *CreateSessionDescriptionObserver) {
+	mtx_.Lock()
 	ptr := uintptr(unsafe.Pointer(observer))
 	observers_[ptr] = observer
+	mtx_.Unlock()
 	C.PeerConnectionCreateAnswer(me.fd, observer.fd)
 }
 
@@ -127,8 +131,10 @@ func (me *PeerConnection) SetLocalDescription(observer *SetSessionDescriptionObs
 		C.free(unsafe.Pointer(description.sdp))
 	}()
 
+	mtx_.Lock()
 	ptr := uintptr(unsafe.Pointer(observer))
 	observers_[ptr] = observer
+	mtx_.Unlock()
 	C.PeerConnectionSetLocalDescription(me.fd, observer.fd, &description)
 }
 
@@ -141,8 +147,10 @@ func (me *PeerConnection) SetRemoteDescription(observer *SetSessionDescriptionOb
 		C.free(unsafe.Pointer(description.sdp))
 	}()
 
+	mtx_.Lock()
 	ptr := uintptr(unsafe.Pointer(observer))
 	observers_[ptr] = observer
+	mtx_.Unlock()
 	C.PeerConnectionSetRemoteDescription(me.fd, observer.fd, &description)
 }
 

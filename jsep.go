@@ -27,7 +27,9 @@ func (me *CreateSessionDescriptionObserver) Init(onSuccess func(desc SessionDesc
 
 func (me *CreateSessionDescriptionObserver) release() {
 	C.CreateSessionDescriptionObserverRelease(me.fd)
+	mtx_.Lock()
 	delete(observers_, uintptr(unsafe.Pointer(me)))
+	mtx_.Unlock()
 }
 
 func NewCreateSessionDescriptionObserver(onSuccess func(desc SessionDescription), OnFailure func(err *RTCError)) *CreateSessionDescriptionObserver {
@@ -51,7 +53,9 @@ func (me *SetSessionDescriptionObserver) Init(onSuccess func(), onFailure func(e
 
 func (me *SetSessionDescriptionObserver) release() {
 	C.SetSessionDescriptionObserverRelease(me.fd)
+	mtx_.Lock()
 	delete(observers_, uintptr(unsafe.Pointer(me)))
+	mtx_.Unlock()
 }
 
 func NewSetSessionDescriptionObserver(onSuccess func(), onFailure func(err *RTCError)) *SetSessionDescriptionObserver {
