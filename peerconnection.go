@@ -235,8 +235,8 @@ func (me *PeerConnection) Close() {
 func (me *PeerConnection) Release() {
 	// TODO(spencer@lau): Since we must call this function in or after event handler of
 	// PeerConnectionState::kClosed, we do it asynchronously and wait for 5 seconds.
-	go func() {
+	go func(me *PeerConnection) {
 		time.Sleep(5 * time.Second)
 		C.PeerConnectionRelease(me.fd)
-	}()
+	}(me)
 }
