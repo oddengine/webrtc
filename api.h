@@ -26,7 +26,7 @@ int WriterClose(void *writer);
 void *CreatePeerConnectionFactory(void *fd);
 raw_rtp_capabilities_t GetRtpSenderCapabilities(void *factory, const char *kind);
 raw_rtp_capabilities_t GetRtpReceiverCapabilities(void *factory, const char *kind);
-void *CreatePeerConnection(void *factory, void *fd);
+void *CreatePeerConnection(void *factory, void *fd, raw_rtc_configuration_t *configuration);
 void *CreateAudioTrack(void *factory, void *fd, const char *id, void *source);
 void *CreateVideoTrack(void *factory, void *fd, const char *id, void *source);
 

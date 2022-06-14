@@ -22,8 +22,29 @@ func (me *PeerConnectionFactory) Init() *PeerConnectionFactory {
 }
 
 func (me *PeerConnectionFactory) CreatePeerConnection(config RTCConfiguration) (*PeerConnection, error) {
+	var ice_servers = make([]*C.raw_rtc_ice_server_t, 0)
+	for _, ice_server := range config.IceServers {
+		var urls = make([]*C.char, 0)
+		for _, url := range ice_server.URLs {
+			curl := C.CString(url)
+			defer func() {
+				C.free(unsafe.Pointer(curl))
+			}()
+			urls = append(urls, curl)
+		}
+
+		server := new(C.raw_rtc_ice_server_t)
+		server.urls = (**C.char)(&urls[0])
+		server.url_size = (C.size_t)(len(urls))
+		ice_servers = append(ice_servers, server)
+	}
+
+	var configuration C.raw_rtc_configuration_t
+	configuration.ice_servers = (**C.raw_rtc_ice_server_t)(&ice_servers[0])
+	configuration.ice_server_size = (C.size_t)(len(ice_servers))
+
 	pc := new(PeerConnection).Init(config)
-	pc.fd = C.CreatePeerConnection(me.fd, unsafe.Pointer(pc))
+	pc.fd = C.CreatePeerConnection(me.fd, unsafe.Pointer(pc), &configuration)
 	return pc, nil
 }
 

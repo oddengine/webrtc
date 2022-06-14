@@ -14,20 +14,55 @@ import (
 	"unsafe"
 )
 
+// Connection states.
 const (
-	PeerConnectionStateNew          = "new"
-	PeerConnectionStateConnecting   = "connecting"
-	PeerConnectionStateConnected    = "connected"
-	PeerConnectionStateDisconnected = "disconnected"
-	PeerConnectionStateFailed       = "failed"
-	PeerConnectionStateClosed       = "closed"
+	ConnectionStateNew          = "new"
+	ConnectionStateConnecting   = "connecting"
+	ConnectionStateConnected    = "connected"
+	ConnectionStateDisconnected = "disconnected"
+	ConnectionStateFailed       = "failed"
+	ConnectionStateClosed       = "closed"
+)
+
+// ICE connection states.
+const (
+	IceConnectionStateNew          = "new"
+	IceConnectionStateChecking     = "checking"
+	IceConnectionStateConnected    = "connected"
+	IceConnectionStateCompleted    = "completed"
+	IceConnectionStateFailed       = "failed"
+	IceConnectionStateDisconnected = "disconnected"
+	IceConnectionStateClosed       = "closed"
+)
+
+// ICE gathering states.
+const (
+	IceGatheringStateNew       = "new"
+	IceGatheringStateGathering = "gathering"
+	IceGatheringStateComplete  = "complete"
+)
+
+// Signaling states.
+const (
+	SignalingStateStable             = "stable"
+	SignalingStateHaveLocalOffer     = "have-local-offer"
+	SignalingStateHaveRemoteOffer    = "have-remote-offer"
+	SignalingStateHaveLocalPranswer  = "have-local-pranswer"
+	SignalingStateHaveRemotePranswer = "have-remote-pranswer"
+	SignalingStateClosed             = "closed"
 )
 
 type RTCConfiguration struct {
+	IceServers []RTCIceServer
+}
+
+type RTCIceServer struct {
+	URLs []string
 }
 
 type PeerConnection struct {
-	fd unsafe.Pointer
+	fd            unsafe.Pointer
+	configuration RTCConfiguration
 
 	OnSignalingChange     func(new_state string)
 	OnDataChannel         func(data_channel interface{})
@@ -41,6 +76,7 @@ type PeerConnection struct {
 }
 
 func (me *PeerConnection) Init(config RTCConfiguration) *PeerConnection {
+	me.configuration = config
 	return me
 }
 

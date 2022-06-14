@@ -82,6 +82,7 @@ type PeerConnectionFactoryInterface interface {
 type MediaSourceInterface interface {
 	Remote() bool
 	State() string
+	Release()
 }
 
 type MediaStreamTrackInterface interface {
@@ -91,6 +92,7 @@ type MediaStreamTrackInterface interface {
 	State() string
 	GetSource() MediaSourceInterface
 	Stop()
+	Release()
 
 	// OnEnded  func()
 	// OnMute   func()
@@ -105,6 +107,7 @@ type MediaStreamInterface interface {
 	GetVideoTracks() []MediaStreamTrackInterface
 	FindAudioTrack(id string) MediaStreamTrackInterface
 	FindVideoTrack(id string) MediaStreamTrackInterface
+	Release()
 
 	// OnAddTrack    func(track MediaStreamTrackInterface)
 	// OnRemoveTrack func(track MediaStreamTrackInterface)
@@ -118,6 +121,7 @@ type RtpSenderInterface interface {
 	SetParameters(parameters interface{})
 	GetParameters() interface{}
 	GetStats() map[string]interface{}
+	Release()
 }
 
 type RtpReceiverInterface interface {
@@ -125,6 +129,7 @@ type RtpReceiverInterface interface {
 	Streams() []MediaStreamInterface
 	GetParameters() interface{}
 	GetStats() map[string]interface{}
+	Release()
 }
 
 type RtpTransceiverInterface interface {
@@ -135,6 +140,7 @@ type RtpTransceiverInterface interface {
 	SetCodecPreferences(codecs []RtpCodecCapability)
 	SetDirection(new_direction string) error
 	Stop()
+	Release()
 }
 
 type RtpCapabilities struct {
@@ -155,6 +161,10 @@ type RtpTransceiverInit struct {
 }
 
 type PeerConnectionInterface interface {
+	ConnectionState() string
+	IceConnectionState() string
+	IceGatheringState() string
+	SignalingState() string
 	AddTrack(track MediaStreamTrackInterface, streams ...MediaStreamInterface) (RtpSenderInterface, error)
 	RemoveTrack(sender RtpSenderInterface) error
 	AddTransceiver(kind string, init RtpTransceiverInit) (RtpTransceiverInterface, error)
@@ -168,6 +178,7 @@ type PeerConnectionInterface interface {
 	GetTransceivers() []RtpTransceiverInterface
 	GetStats() map[string]interface{}
 	Close()
+	Release()
 
 	// OnSignalingChange     func(new_state string)
 	// OnDataChannel         func(data_channel interface{})

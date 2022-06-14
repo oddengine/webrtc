@@ -32,7 +32,7 @@ typedef int (*__writer_close_fptr__)(void *writer);
 typedef void *(*__create_peer_connection_factory_fptr__)(void *fd);
 typedef raw_rtp_capabilities_t (*__get_rtp_sender_capabilities_fptr__)(void *factory, const char *kind);
 typedef raw_rtp_capabilities_t (*__get_rtp_receiver_capabilities_fptr__)(void *factory, const char *kind);
-typedef void *(*__create_peer_connection_fptr__)(void *factory, void *pc, raw_peer_connection_observer_t *cb);
+typedef void *(*__create_peer_connection_fptr__)(void *factory, void *pc, raw_rtc_configuration_t *configuration, raw_peer_connection_observer_t *cb);
 typedef void *(*__create_audio_track_fptr__)(void *factory, void *track, const char *id, void *source);
 typedef void *(*__create_video_track_fptr__)(void *factory, void *track, const char *id, void *source);
 
@@ -400,10 +400,10 @@ raw_rtp_capabilities_t GetRtpReceiverCapabilities(void *factory, const char *kin
     return __get_rtp_receiver_capabilities__(factory, kind);
 }
 
-void *CreatePeerConnection(void *factory, void *pc)
+void *CreatePeerConnection(void *factory, void *pc, raw_rtc_configuration_t *configuration)
 {
     // __debugf__(6, "===> CreatePeerConnection()");
-    return __create_peer_connection__(factory, pc, __peer_connection_observer__);
+    return __create_peer_connection__(factory, pc, configuration, __peer_connection_observer__);
 }
 
 void *CreateAudioTrack(void *factory, void *track, const char *id, void *source)

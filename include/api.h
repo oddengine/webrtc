@@ -26,6 +26,16 @@ typedef struct {
 } raw_default_writer_observer_t;
 
 typedef struct {
+  char** urls;
+  size_t url_size;
+} raw_rtc_ice_server_t;
+
+typedef struct {
+  raw_rtc_ice_server_t** ice_servers;
+  size_t ice_server_size;
+} raw_rtc_configuration_t;
+
+typedef struct {
   void (*onsignalingchange)(void* target, const char* new_state);
   void (*ondatachannel)(void* target, void* data_channel);
   void (*onrenegotiationneeded)(void* target);
