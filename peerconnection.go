@@ -92,7 +92,7 @@ func (me *PeerConnection) AddTrack(track *MediaStreamTrack, streams ...*MediaStr
 	sender := new(RtpSender).Init()
 	sender.fd = C.PeerConnectionAddTrack(me.fd, track.fd, (C.size_t)(len(arr)), (*unsafe.Pointer)(&arr[0]), &err)
 	if sender.fd == nil {
-		logger_.Errorf("Failed to PeerConnectionAddTrack: name=%s, message=%s", C.GoString(err.name), C.GoString(err.message))
+		LogErrorf("Failed to PeerConnectionAddTrack: name=%s, message=%s", C.GoString(err.name), C.GoString(err.message))
 		return nil, fmt.Errorf("%s: %s", C.GoString(err.name), C.GoString(err.message))
 	}
 	return sender, nil
@@ -105,7 +105,7 @@ func (me *PeerConnection) RemoveTrack(sender *RtpSender) error {
 
 	eno := (int)(C.PeerConnectionRemoveTrack(me.fd, sender.fd, &err))
 	if eno != 0 {
-		logger_.Errorf("Failed to PeerConnectionRemoveTrack: name=%s, message=%s", C.GoString(err.name), C.GoString(err.message))
+		LogErrorf("Failed to PeerConnectionRemoveTrack: name=%s, message=%s", C.GoString(err.name), C.GoString(err.message))
 		return fmt.Errorf("%s: %s", C.GoString(err.name), C.GoString(err.message))
 	}
 	return nil
@@ -136,7 +136,7 @@ func (me *PeerConnection) AddTransceiver(media_type string, init RtpTransceiverI
 	transceiver := new(RtpTransceiver).Init()
 	transceiver.fd = C.PeerConnectionAddTransceiver(me.fd, kind, &cini, &err)
 	if transceiver.fd == nil {
-		logger_.Errorf("Failed to PeerConnectionAddTransceiver: name=%s, message=%s", C.GoString(err.name), C.GoString(err.message))
+		LogErrorf("Failed to PeerConnectionAddTransceiver: name=%s, message=%s", C.GoString(err.name), C.GoString(err.message))
 		return nil, fmt.Errorf("%s: %s", C.GoString(err.name), C.GoString(err.message))
 	}
 	return transceiver, nil
@@ -206,7 +206,7 @@ func (me *PeerConnection) AddIceCandidate(candidate *IceCandidate) error {
 
 	eno := (int)(C.PeerConnectionAddIceCandidate(me.fd, &cand, &err))
 	if eno != 0 {
-		logger_.Errorf("Failed to PeerConnectionAddIceCandidate: name=%s, message=%s", C.GoString(err.name), C.GoString(err.message))
+		LogErrorf("Failed to PeerConnectionAddIceCandidate: name=%s, message=%s", C.GoString(err.name), C.GoString(err.message))
 		return fmt.Errorf("%s: %s", C.GoString(err.name), C.GoString(err.message))
 	}
 	return nil

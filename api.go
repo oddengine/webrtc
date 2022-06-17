@@ -40,8 +40,6 @@ const (
 )
 
 var (
-	factory_   ILoggerFactory
-	logger_    ILogger
 	mtx_       sync.Mutex
 	observers_ = make(map[uintptr]interface{})
 )
@@ -49,25 +47,32 @@ var (
 // RTCConstraints dictionary is used to describe a set of rtc library.
 type RTCConstraints struct {
 	KeyframeInterval int64 // ms. 0: auto.
+	Logger           struct {
+		Directory string
+		MaxSize   int64
+		History   int64
+	}
 }
 
-func InitializeLibrary(path string, constraints *RTCConstraints, writer *DefaultWriterConstraints) error {
+func InitializeLibrary(path string, constraints *RTCConstraints) error {
 	file := C.CString(path)
-	defer func() {
-		C.free(unsafe.Pointer(file))
-	}()
 
 	var config C.raw_rtc_constraints_t
 	config.keyframe_interval = C.int64_t(constraints.KeyframeInterval)
+	config.logger.directory = C.CString(constraints.Logger.Directory)
+	config.logger.max_size = C.size_t(constraints.Logger.MaxSize)
+	config.logger.history = C.size_t(constraints.Logger.History)
+
+	defer func() {
+		C.free(unsafe.Pointer(file))
+		C.free(unsafe.Pointer(config.logger.directory))
+	}()
 
 	eno := int(C.InitializeLibrary(file, config))
 	if eno != 0 {
-		Errorf("Failed to initialize library: %d", eno)
+		fmt.Printf("Failed to initialize library: %d\n", eno)
 		return fmt.Errorf("error %d", eno)
 	}
-
-	factory_ = NewDefaultLoggerFactory(writer)
-	logger_ = factory_.NewLogger("RTC")
 	return nil
 }
 
@@ -191,26 +196,50 @@ type PeerConnectionInterface interface {
 	// OnTrack               func(track MediaStreamTrackInterface, streams ...MediaStreamInterface)
 }
 
-//export __onloggerwriterresize__
-func __onloggerwriterresize__(target unsafe.Pointer) {
+func LogInfo(message string) {
+	msg := C.CString(message)
 	defer func() {
-		if err := recover(); err != nil {
-			logger_.Errorf("Unexpected error occurred: %v", err)
-			debug.PrintStack()
-		}
+		C.free(unsafe.Pointer(msg))
 	}()
 
-	dw := (*DefaultWriter)(target)
-	if dw != nil {
-		dw.OnResize()
-	}
+	C.LogInfo(msg)
+}
+
+func LogWarn(message string) {
+	msg := C.CString(message)
+	defer func() {
+		C.free(unsafe.Pointer(msg))
+	}()
+
+	C.LogWarn(msg)
+}
+
+func LogError(message string) {
+	msg := C.CString(message)
+	defer func() {
+		C.free(unsafe.Pointer(msg))
+	}()
+
+	C.LogError(msg)
+}
+
+func LogInfof(format string, args ...interface{}) {
+	LogInfo(fmt.Sprintf(format, args...))
+}
+
+func LogWarnf(format string, args ...interface{}) {
+	LogWarn(fmt.Sprintf(format, args...))
+}
+
+func LogErrorf(format string, args ...interface{}) {
+	LogError(fmt.Sprintf(format, args...))
 }
 
 //export __onsignalingchange__
 func __onsignalingchange__(target unsafe.Pointer, new_state *C.char) {
 	defer func() {
 		if err := recover(); err != nil {
-			logger_.Errorf("Unexpected error occurred: %v", err)
+			LogErrorf("Unexpected error occurred: %v", err)
 			debug.PrintStack()
 		}
 	}()
@@ -225,7 +254,7 @@ func __onsignalingchange__(target unsafe.Pointer, new_state *C.char) {
 func __ondatachannel__(target unsafe.Pointer, data_channel unsafe.Pointer) {
 	defer func() {
 		if err := recover(); err != nil {
-			logger_.Errorf("Unexpected error occurred: %v", err)
+			LogErrorf("Unexpected error occurred: %v", err)
 			debug.PrintStack()
 		}
 	}()
@@ -240,7 +269,7 @@ func __ondatachannel__(target unsafe.Pointer, data_channel unsafe.Pointer) {
 func __onrenegotiationneeded__(target unsafe.Pointer) {
 	defer func() {
 		if err := recover(); err != nil {
-			logger_.Errorf("Unexpected error occurred: %v", err)
+			LogErrorf("Unexpected error occurred: %v", err)
 			debug.PrintStack()
 		}
 	}()
@@ -255,7 +284,7 @@ func __onrenegotiationneeded__(target unsafe.Pointer) {
 func __onconnectionchange__(target unsafe.Pointer, new_state *C.char) {
 	defer func() {
 		if err := recover(); err != nil {
-			logger_.Errorf("Unexpected error occurred: %v", err)
+			LogErrorf("Unexpected error occurred: %v", err)
 			debug.PrintStack()
 		}
 	}()
@@ -270,7 +299,7 @@ func __onconnectionchange__(target unsafe.Pointer, new_state *C.char) {
 func __oniceconnectionchange__(target unsafe.Pointer, new_state *C.char) {
 	defer func() {
 		if err := recover(); err != nil {
-			logger_.Errorf("Unexpected error occurred: %v", err)
+			LogErrorf("Unexpected error occurred: %v", err)
 			debug.PrintStack()
 		}
 	}()
@@ -285,7 +314,7 @@ func __oniceconnectionchange__(target unsafe.Pointer, new_state *C.char) {
 func __onicegatheringchange__(target unsafe.Pointer, new_state *C.char) {
 	defer func() {
 		if err := recover(); err != nil {
-			logger_.Errorf("Unexpected error occurred: %v", err)
+			LogErrorf("Unexpected error occurred: %v", err)
 			debug.PrintStack()
 		}
 	}()
@@ -300,7 +329,7 @@ func __onicegatheringchange__(target unsafe.Pointer, new_state *C.char) {
 func __onicecandidate__(target unsafe.Pointer, candidate *C.char, sdp_mid *C.char, sdp_mline_index C.int) {
 	defer func() {
 		if err := recover(); err != nil {
-			logger_.Errorf("Unexpected error occurred: %v", err)
+			LogErrorf("Unexpected error occurred: %v", err)
 			debug.PrintStack()
 		}
 	}()
@@ -319,7 +348,7 @@ func __onicecandidate__(target unsafe.Pointer, candidate *C.char, sdp_mid *C.cha
 func __onicecandidateerror__(target unsafe.Pointer, address *C.char, port C.int, url *C.char, error_code C.int, error_text *C.char) {
 	defer func() {
 		if err := recover(); err != nil {
-			logger_.Errorf("Unexpected error occurred: %v", err)
+			LogErrorf("Unexpected error occurred: %v", err)
 			debug.PrintStack()
 		}
 	}()
@@ -334,7 +363,7 @@ func __onicecandidateerror__(target unsafe.Pointer, address *C.char, port C.int,
 func __ontrack__(target unsafe.Pointer, transceiver unsafe.Pointer) {
 	defer func() {
 		if err := recover(); err != nil {
-			logger_.Errorf("Unexpected error occurred: %v", err)
+			LogErrorf("Unexpected error occurred: %v", err)
 			debug.PrintStack()
 		}
 	}()
@@ -356,7 +385,7 @@ func __ontrack__(target unsafe.Pointer, transceiver unsafe.Pointer) {
 func __oncreatesessiondescriptionsuccess__(target unsafe.Pointer, typ *C.char, sdp *C.char) {
 	defer func() {
 		if err := recover(); err != nil {
-			logger_.Errorf("Unexpected error occurred: %v", err)
+			LogErrorf("Unexpected error occurred: %v", err)
 			debug.PrintStack()
 		}
 	}()
@@ -375,7 +404,7 @@ func __oncreatesessiondescriptionsuccess__(target unsafe.Pointer, typ *C.char, s
 func __oncreatesessiondescriptionfailure__(target unsafe.Pointer, name *C.char, message *C.char) {
 	defer func() {
 		if err := recover(); err != nil {
-			logger_.Errorf("Unexpected error occurred: %v", err)
+			LogErrorf("Unexpected error occurred: %v", err)
 			debug.PrintStack()
 		}
 	}()
@@ -391,7 +420,7 @@ func __oncreatesessiondescriptionfailure__(target unsafe.Pointer, name *C.char, 
 func __onsetsessiondescriptionsuccess__(target unsafe.Pointer) {
 	defer func() {
 		if err := recover(); err != nil {
-			logger_.Errorf("Unexpected error occurred: %v", err)
+			LogErrorf("Unexpected error occurred: %v", err)
 			debug.PrintStack()
 		}
 	}()
@@ -407,7 +436,7 @@ func __onsetsessiondescriptionsuccess__(target unsafe.Pointer) {
 func __onsetsessiondescriptionfailure__(target unsafe.Pointer, name *C.char, message *C.char) {
 	defer func() {
 		if err := recover(); err != nil {
-			logger_.Errorf("Unexpected error occurred: %v", err)
+			LogErrorf("Unexpected error occurred: %v", err)
 			debug.PrintStack()
 		}
 	}()

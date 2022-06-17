@@ -13,17 +13,12 @@
 
 typedef struct {
   int64_t keyframe_interval;
-} raw_rtc_constraints_t;
-
-typedef struct {
   struct {
-    int maxsize;
-  } rotation;
-} raw_default_writer_constraints_t;
-
-typedef struct {
-  void (*onresize)(void* target);
-} raw_default_writer_observer_t;
+    char* directory;
+    size_t max_size;
+    size_t history;
+  } logger;
+} raw_rtc_constraints_t;
 
 typedef struct {
   char** urls;

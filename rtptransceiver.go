@@ -37,7 +37,7 @@ func (me *RtpTransceiver) Receiver() *RtpReceiver {
 	receiver := new(RtpReceiver).Init()
 	receiver.fd = C.RtpTransceiverGetReceiver(me.fd)
 	if receiver.fd == nil {
-		logger_.Errorf("Failed to RtpTransceiverGetReceiver.")
+		LogErrorf("Failed to RtpTransceiverGetReceiver.")
 		return nil
 	}
 	return receiver
@@ -47,7 +47,7 @@ func (me *RtpTransceiver) Sender() *RtpSender {
 	sender := new(RtpSender).Init()
 	sender.fd = C.RtpTransceiverGetSender(me.fd)
 	if sender.fd == nil {
-		logger_.Errorf("Failed to RtpTransceiverGetSender.")
+		LogErrorf("Failed to RtpTransceiverGetSender.")
 		return nil
 	}
 	return sender
@@ -77,7 +77,7 @@ func (me *RtpTransceiver) SetDirection(new_direction string) error {
 
 	eno := (int)(C.RtpTransceiverSetDirection(me.fd, direction, &err))
 	if eno != 0 {
-		logger_.Errorf("Failed to RtpTransceiverSetDirection: name=%s, message=%s", C.GoString(err.name), C.GoString(err.message))
+		LogErrorf("Failed to RtpTransceiverSetDirection: name=%s, message=%s", C.GoString(err.name), C.GoString(err.message))
 		return fmt.Errorf("%s: %s", C.GoString(err.name), C.GoString(err.message))
 	}
 	return nil

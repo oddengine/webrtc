@@ -14,14 +14,9 @@ int InitializeLibrary(const char *file, raw_rtc_constraints_t constraints);
 void *Calloc(size_t size);
 void Free(void *p);
 
-void *CreateDefaultLoggerFactory(void *fd, void *out, int level);
-void *CreateDefaultLogger(void *fd, void *factory, const char *scope);
-void *CreateDefaultWriter(void *fd, raw_default_writer_constraints_t *constraints);
-
-int WriterOpen(void *writer, const char *path);
-int WriterWrite(void *writer, const char *message, size_t size);
-size_t WriterSize(void *writer);
-int WriterClose(void *writer);
+void LogInfo(const char *message);
+void LogWarn(const char *message);
+void LogError(const char *message);
 
 void *CreatePeerConnectionFactory(void *fd);
 raw_rtp_capabilities_t GetRtpSenderCapabilities(void *factory, const char *kind);

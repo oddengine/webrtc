@@ -20,14 +20,9 @@ typedef int (*__initialize_library_fptr__)(raw_rtc_constraints_t constraints);
 typedef void *(*__calloc_fptr__)(size_t size);
 typedef void (*__free_fptr__)(void *p);
 
-typedef void *(*__create_default_logger_factory_fptr__)(void *fd, void *out, int level);
-typedef void *(*__create_default_logger_fptr__)(void *fd, void *factory, const char *scope);
-typedef void *(*__create_default_writer_fptr__)(void *fd, raw_default_writer_constraints_t *constraints, raw_default_writer_observer_t *cb);
-
-typedef int (*__writer_open_fptr__)(void *writer, const char *path);
-typedef int (*__writer_write_fptr__)(void *writer, const char *message, size_t size);
-typedef size_t (*__writer_size_fptr__)(void *writer);
-typedef int (*__writer_close_fptr__)(void *writer);
+typedef void (*__log_info_fptr__)(const char *message);
+typedef void (*__log_warn_fptr__)(const char *message);
+typedef void (*__log_error_fptr__)(const char *message);
 
 typedef void *(*__create_peer_connection_factory_fptr__)(void *fd);
 typedef raw_rtp_capabilities_t (*__get_rtp_sender_capabilities_fptr__)(void *factory, const char *kind);
@@ -103,14 +98,9 @@ __initialize_library_fptr__ __initialize_library__;
 __calloc_fptr__ __calloc__;
 __free_fptr__ __free__;
 
-__create_default_logger_factory_fptr__ __create_default_logger_factory__;
-__create_default_logger_fptr__ __create_default_logger__;
-__create_default_writer_fptr__ __create_default_writer__;
-
-__writer_open_fptr__ __writer_open__;
-__writer_write_fptr__ __writer_write__;
-__writer_size_fptr__ __writer_size__;
-__writer_close_fptr__ __writer_close__;
+__log_info_fptr__ __log_info__;
+__log_warn_fptr__ __log_warn__;
+__log_error_fptr__ __log_error__;
 
 __create_peer_connection_factory_fptr__ __create_peer_connection_factory__;
 __get_rtp_sender_capabilities_fptr__ __get_rtp_sender_capabilities__;
@@ -182,9 +172,6 @@ __rtp_sender_get_parameters_fptr__ __rtp_sender_get_parameters__;
 __rtp_sender_get_stats_fptr__ __rtp_sender_get_stats__;
 __rtp_sender_release_fptr__ __rtp_sender_release__;
 
-raw_default_writer_observer_t *__logger_writer_observer__;
-extern void __onloggerwriterresize__(void *target);
-
 raw_peer_connection_observer_t *__peer_connection_observer__;
 extern void __onsignalingchange__(void *observer, const char *new_state);
 extern void __ondatachannel__(void *observer, void *data_channel);
@@ -224,14 +211,9 @@ int InitializeLibrary(const char *file, raw_rtc_constraints_t constraints)
     __calloc__ = (__calloc_fptr__)dlsym(handle, "Calloc");
     __free__ = (__free_fptr__)dlsym(handle, "Free");
 
-    __create_default_logger_factory__ = (__create_default_logger_factory_fptr__)dlsym(handle, "CreateDefaultLoggerFactory");
-    __create_default_logger__ = (__create_default_logger_fptr__)dlsym(handle, "CreateDefaultLogger");
-    __create_default_writer__ = (__create_default_writer_fptr__)dlsym(handle, "CreateDefaultWriter");
-
-    __writer_open__ = (__writer_open_fptr__)dlsym(handle, "WriterOpen");
-    __writer_write__ = (__writer_write_fptr__)dlsym(handle, "WriterWrite");
-    __writer_size__ = (__writer_size_fptr__)dlsym(handle, "WriterSize");
-    __writer_close__ = (__writer_close_fptr__)dlsym(handle, "WriterClose");
+    __log_info__ = (__log_info_fptr__)dlsym(handle, "LogInfo");
+    __log_warn__ = (__log_warn_fptr__)dlsym(handle, "LogWarn");
+    __log_error__ = (__log_error_fptr__)dlsym(handle, "LogError");
 
     __create_peer_connection_factory__ = (__create_peer_connection_factory_fptr__)dlsym(handle, "CreatePeerConnectionFactory");
     __get_rtp_sender_capabilities__ = (__get_rtp_sender_capabilities_fptr__)dlsym(handle, "GetRtpSenderCapabilities");
@@ -303,9 +285,6 @@ int InitializeLibrary(const char *file, raw_rtc_constraints_t constraints)
     __rtp_sender_get_stats__ = (__rtp_sender_get_stats_fptr__)dlsym(handle, "RtpSenderGetStats");
     __rtp_sender_release__ = (__rtp_sender_release_fptr__)dlsym(handle, "RtpSenderRelease");
 
-    __logger_writer_observer__ = malloc(sizeof(raw_default_writer_observer_t));
-    __logger_writer_observer__->onresize = __onloggerwriterresize__;
-
     __peer_connection_observer__ = malloc(sizeof(raw_peer_connection_observer_t));
     __peer_connection_observer__->onsignalingchange = __onsignalingchange__;
     __peer_connection_observer__->ondatachannel = __ondatachannel__;
@@ -340,46 +319,22 @@ void Free(void *p)
     return __free__(p);
 }
 
-void *CreateDefaultLoggerFactory(void *fd, void *out, int level)
+void LogInfo(const char *message)
 {
-    // __debugf__(6, "===> CreateDefaultLoggerFactory()");
-    return __create_default_logger_factory__(fd, out, level);
+    // __debugf__(6, "===> LogInfo(%s)", message);
+    return __log_info__(message);
 }
 
-void *CreateDefaultLogger(void *fd, void *factory, const char *scope)
+void LogWarn(const char *message)
 {
-    // __debugf__(6, "===> CreateDefaultLogger()");
-    return __create_default_logger__(fd, factory, scope);
+    // __debugf__(6, "===> LogWarn(%s)", message);
+    return __log_warn__(message);
 }
 
-void *CreateDefaultWriter(void *fd, raw_default_writer_constraints_t *constraints)
+void LogError(const char *message)
 {
-    // __debugf__(6, "===> CreateDefaultWriter()");
-    return __create_default_writer__(fd, constraints, __logger_writer_observer__);
-}
-
-int WriterOpen(void *writer, const char *path)
-{
-    // __debugf__(6, "===> WriterOpen()");
-    return __writer_open__(writer, path);
-}
-
-int WriterWrite(void *writer, const char *message, size_t size)
-{
-    // __debugf__(6, "===> WriterWrite()");
-    return __writer_write__(writer, message, size);
-}
-
-size_t WriterSize(void *writer)
-{
-    // __debugf__(6, "===> WriterSize()");
-    return __writer_size__(writer);
-}
-
-int WriterClose(void *writer)
-{
-    // __debugf__(6, "===> WriterClose()");
-    return __writer_close__(writer);
+    // __debugf__(6, "===> LogError(%s)", message);
+    return __log_error__(message);
 }
 
 void *CreatePeerConnectionFactory(void *fd)
