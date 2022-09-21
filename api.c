@@ -81,7 +81,7 @@ typedef void (*__rtp_transceiver_release_fptr__)(void *transceiver);
 
 typedef void *(*__rtp_receiver_get_track_fptr__)(void *receiver);
 typedef void (*__rtp_receiver_get_streams_fptr__)(void *receiver, size_t *size, void **array);
-typedef void (*__rtp_receiver_get_parameters_fptr__)(void *receiver, void *parameters);
+typedef void (*__rtp_receiver_get_parameters_fptr__)(void *receiver, raw_rtp_parameters_t *parameters);
 typedef void (*__rtp_receiver_get_stats_fptr__)(void *receiver, void *stats);
 typedef void (*__rtp_receiver_release_fptr__)(void *receiver);
 
@@ -89,10 +89,13 @@ typedef int (*__rtp_sender_set_track_fptr__)(void *sender, void *track);
 typedef void *(*__rtp_sender_get_track_fptr__)(void *sender);
 typedef void (*__rtp_sender_set_streams_fptr__)(void *sender, size_t size, const char **stream_ids);
 typedef void (*__rtp_sender_get_streams_fptr__)(void *sender, size_t *size, void **array);
-typedef void (*__rtp_sender_set_parameters_fptr__)(void *sender, void *parameters);
-typedef void (*__rtp_sender_get_parameters_fptr__)(void *sender, void *parameters);
+typedef void (*__rtp_sender_set_parameters_fptr__)(void *sender, raw_rtp_parameters_t *parameters, raw_rtc_error_t *err);
+typedef void (*__rtp_sender_get_parameters_fptr__)(void *sender, raw_rtp_parameters_t *parameters);
 typedef void (*__rtp_sender_get_stats_fptr__)(void *sender, void *stats);
 typedef void (*__rtp_sender_release_fptr__)(void *sender);
+
+typedef void (*__rtp_codec_capability_release_fptr__)(void *capability);
+typedef void (*__rtp_codec_parameters_release_fptr__)(void *parameters);
 
 __initialize_library_fptr__ __initialize_library__;
 __calloc_fptr__ __calloc__;
@@ -171,6 +174,9 @@ __rtp_sender_set_parameters_fptr__ __rtp_sender_set_parameters__;
 __rtp_sender_get_parameters_fptr__ __rtp_sender_get_parameters__;
 __rtp_sender_get_stats_fptr__ __rtp_sender_get_stats__;
 __rtp_sender_release_fptr__ __rtp_sender_release__;
+
+__rtp_codec_capability_release_fptr__ __rtp_codec_capability_release__;
+__rtp_codec_parameters_release_fptr__ __rtp_codec_parameters_release__;
 
 raw_peer_connection_observer_t *__peer_connection_observer__;
 extern void __onsignalingchange__(void *observer, const char *new_state);
@@ -284,6 +290,9 @@ int InitializeLibrary(const char *file, raw_rtc_constraints_t constraints)
     __rtp_sender_get_parameters__ = (__rtp_sender_get_parameters_fptr__)dlsym(handle, "RtpSenderGetParameters");
     __rtp_sender_get_stats__ = (__rtp_sender_get_stats_fptr__)dlsym(handle, "RtpSenderGetStats");
     __rtp_sender_release__ = (__rtp_sender_release_fptr__)dlsym(handle, "RtpSenderRelease");
+
+    __rtp_codec_capability_release__ = (__rtp_codec_capability_release_fptr__)dlsym(handle, "RtpCodecCapabilityRelease");
+    __rtp_codec_parameters_release__ = (__rtp_codec_parameters_release_fptr__)dlsym(handle, "RtpCodecParametersRelease");
 
     __peer_connection_observer__ = malloc(sizeof(raw_peer_connection_observer_t));
     __peer_connection_observer__->onsignalingchange = __onsignalingchange__;
@@ -631,7 +640,7 @@ void RtpReceiverGetStreams(void *receiver, size_t *size, void **array)
     __rtp_receiver_get_streams__(receiver, size, array);
 }
 
-void RtpReceiverGetParameters(void *receiver, void *parameters)
+void RtpReceiverGetParameters(void *receiver, raw_rtp_parameters_t *parameters)
 {
     // __debugf__(6, "===> RtpReceiverGetParameters()");
     __rtp_receiver_get_parameters__(receiver, parameters);
@@ -673,13 +682,13 @@ void RtpSenderGetStreams(void *sender, size_t *size, void **array)
     __rtp_sender_get_streams__(sender, size, array);
 }
 
-void RtpSenderSetParameters(void *sender, void *parameters)
+void RtpSenderSetParameters(void *sender, raw_rtp_parameters_t *parameters, raw_rtc_error_t *err)
 {
     // __debugf__(6, "===> RtpSenderSetParameters()");
-    __rtp_sender_set_parameters__(sender, parameters);
+    __rtp_sender_set_parameters__(sender, parameters, err);
 }
 
-void RtpSenderGetParameters(void *sender, void *parameters)
+void RtpSenderGetParameters(void *sender, raw_rtp_parameters_t *parameters)
 {
     // __debugf__(6, "===> RtpSenderGetParameters()");
     __rtp_sender_get_parameters__(sender, parameters);
@@ -695,4 +704,16 @@ void RtpSenderRelease(void *sender)
 {
     // __debugf__(6, "===> RtpSenderRelease()");
     __rtp_sender_release__(sender);
+}
+
+void RtpCodecCapabilityRelease(void *capability)
+{
+    // __debugf__(6, "===> RtpCodecCapabilityRelease()");
+    __rtp_codec_capability_release__(capability);
+}
+
+void RtpCodecParametersRelease(void *parameters)
+{
+    // __debugf__(6, "===> RtpCodecParametersRelease()");
+    __rtp_codec_parameters_release__(parameters);
 }

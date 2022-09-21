@@ -53,6 +53,35 @@ func (me *PeerConnectionFactory) GetRtpSenderCapabilities(kind string) RtpCapabi
 		capabilities RtpCapabilities
 	)
 
+	k := C.CString(kind)
+	defer func() {
+		C.free((unsafe.Pointer(k)))
+	}()
+
+	rtp_capabilities := C.GetRtpSenderCapabilities(me.fd, k)
+	size := int(rtp_capabilities.size)
+	if size > 0 {
+		defer func() {
+			C.Free(unsafe.Pointer(rtp_capabilities.codecs))
+		}()
+	}
+
+	for i := 0; i < size; i++ {
+		arr := (*[1024]C.raw_rtp_codec_capability_t)(unsafe.Pointer(rtp_capabilities.codecs))[:size:size]
+		src := arr[i]
+		defer (func(src C.raw_rtp_codec_capability_t) {
+			C.Free(unsafe.Pointer(src.mime_type))
+			C.Free(unsafe.Pointer(src.sdp_fmtp_line))
+		})(src)
+
+		dst := new(RtpCodecCapability)
+		dst.fd = src.fd
+		dst.MimeType = C.GoString(src.mime_type)
+		dst.ClockRate = int(src.clock_rate)
+		dst.Channels = int(src.channels)
+		dst.SdpFmtpLine = C.GoString(src.sdp_fmtp_line)
+		capabilities.Codecs = append(capabilities.Codecs, *dst)
+	}
 	return capabilities
 }
 
@@ -68,15 +97,26 @@ func (me *PeerConnectionFactory) GetRtpReceiverCapabilities(kind string) RtpCapa
 
 	rtp_capabilities := C.GetRtpReceiverCapabilities(me.fd, k)
 	size := int(rtp_capabilities.size)
+	if size > 0 {
+		defer func() {
+			C.Free(unsafe.Pointer(rtp_capabilities.codecs))
+		}()
+	}
 
 	for i := 0; i < size; i++ {
 		arr := (*[1024]C.raw_rtp_codec_capability_t)(unsafe.Pointer(rtp_capabilities.codecs))[:size:size]
 		src := arr[i]
+		defer (func(src C.raw_rtp_codec_capability_t) {
+			C.Free(unsafe.Pointer(src.mime_type))
+			C.Free(unsafe.Pointer(src.sdp_fmtp_line))
+		})(src)
+
 		dst := new(RtpCodecCapability)
 		dst.fd = src.fd
 		dst.MimeType = C.GoString(src.mime_type)
 		dst.ClockRate = int(src.clock_rate)
 		dst.Channels = int(src.channels)
+		dst.SdpFmtpLine = C.GoString(src.sdp_fmtp_line)
 		capabilities.Codecs = append(capabilities.Codecs, *dst)
 	}
 	return capabilities

@@ -72,7 +72,7 @@ type PeerConnection struct {
 	OnIceGatheringChange  func(new_state string)
 	OnIceCandidate        func(candidate *IceCandidate)
 	OnIceCandidateError   func(address string, port int, url string, error_code int, error_text string)
-	OnTrack               func(track *MediaStreamTrack, streams ...*MediaStream)
+	OnTrack               func(transceiver *RtpTransceiver)
 }
 
 func (me *PeerConnection) Init(config RTCConfiguration) *PeerConnection {

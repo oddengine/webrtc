@@ -46,8 +46,37 @@ func (me *RtpReceiver) Streams() []*MediaStream {
 	return streams
 }
 
-func (me *RtpReceiver) GetParameters() interface{} {
-	return nil
+func (me *RtpReceiver) GetParameters() RtpParameters {
+	var (
+		parameters RtpParameters
+		dst        C.raw_rtp_parameters_t
+	)
+
+	C.RtpReceiverGetParameters(me.fd, &dst)
+	size := int(dst.size)
+	if size > 0 {
+		defer func() {
+			C.Free(unsafe.Pointer(dst.codecs))
+		}()
+	}
+
+	for i := 0; i < size; i++ {
+		arr := (*[1024]C.raw_rtp_codec_parameters_t)(unsafe.Pointer(dst.codecs))[:size:size]
+		src := arr[i]
+		defer (func(src C.raw_rtp_codec_parameters_t) {
+			C.free(unsafe.Pointer(src.fd))
+			C.Free(unsafe.Pointer(src.mime_type))
+		})(src)
+
+		dst := new(RtpCodecParameters)
+		dst.fd = src.fd
+		dst.PayloadType = int(src.payload_type)
+		dst.MimeType = C.GoString(src.mime_type)
+		dst.ClockRate = int(src.clock_rate)
+		dst.Channels = int(src.channels)
+		parameters.Codecs = append(parameters.Codecs, *dst)
+	}
+	return parameters
 }
 
 func (me *RtpReceiver) GetStats() map[string]interface{} {

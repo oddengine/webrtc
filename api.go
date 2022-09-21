@@ -123,8 +123,8 @@ type RtpSenderInterface interface {
 	Track() MediaStreamTrackInterface
 	SetStreams(stream_ids ...string)
 	Streams() []string
-	SetParameters(parameters interface{})
-	GetParameters() interface{}
+	SetParameters(parameters RtpParameters) error
+	GetParameters() RtpParameters
 	GetStats() map[string]interface{}
 	Release()
 }
@@ -132,7 +132,7 @@ type RtpSenderInterface interface {
 type RtpReceiverInterface interface {
 	Track() MediaStreamTrackInterface
 	Streams() []MediaStreamInterface
-	GetParameters() interface{}
+	GetParameters() RtpParameters
 	GetStats() map[string]interface{}
 	Release()
 }
@@ -155,9 +155,32 @@ type RtpCapabilities struct {
 type RtpCodecCapability struct {
 	fd unsafe.Pointer
 
-	MimeType  string
-	ClockRate int
-	Channels  int
+	MimeType    string
+	ClockRate   int
+	Channels    int
+	SdpFmtpLine string
+}
+
+func (me *RtpCodecCapability) Release() {
+	C.RtpCodecCapabilityRelease(me.fd)
+}
+
+type RtpParameters struct {
+	Codecs []RtpCodecParameters
+}
+
+type RtpCodecParameters struct {
+	fd unsafe.Pointer
+
+	PayloadType int
+	MimeType    string
+	ClockRate   int
+	Channels    int
+	SdpFmtpLine string
+}
+
+func (me *RtpCodecParameters) Release() {
+	C.RtpCodecParametersRelease(me.fd)
 }
 
 type RtpTransceiverInit struct {
@@ -368,16 +391,12 @@ func __ontrack__(target unsafe.Pointer, transceiver unsafe.Pointer) {
 		}
 	}()
 
-	trans := new(RtpTransceiver).Init()
-	trans.fd = transceiver
-
-	receiver := trans.Receiver()
-	track := receiver.Track()
-	streams := receiver.Streams()
+	t := new(RtpTransceiver).Init()
+	t.fd = transceiver
 
 	pc := (*PeerConnection)(target)
 	if pc != nil {
-		pc.OnTrack(track, streams...)
+		pc.OnTrack(t)
 	}
 }
 

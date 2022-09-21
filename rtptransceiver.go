@@ -62,7 +62,9 @@ func (me *RtpTransceiver) SetCodecPreferences(codecs []RtpCodecCapability) {
 	for i, codec := range codecs {
 		array[i] = codec.fd
 	}
-	C.RtpTransceiverSetCodecPreferences(me.fd, (*unsafe.Pointer)(&array[0]), C.size_t(size))
+	if len(codecs) > 0 {
+		C.RtpTransceiverSetCodecPreferences(me.fd, (*unsafe.Pointer)(&array[0]), C.size_t(size))
+	}
 }
 
 func (me *RtpTransceiver) SetDirection(new_direction string) error {

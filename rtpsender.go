@@ -67,12 +67,12 @@ func (me *RtpSender) Streams() []string {
 	return stream_ids
 }
 
-func (me *RtpSender) SetParameters(parameters interface{}) {
-
+func (me *RtpSender) SetParameters(parameters RtpParameters) error {
+	return nil
 }
 
-func (me *RtpSender) GetParameters() interface{} {
-	return nil
+func (me *RtpSender) GetParameters() RtpParameters {
+	return RtpParameters{}
 }
 
 func (me *RtpSender) GetStats() map[string]interface{} {

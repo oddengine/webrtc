@@ -75,7 +75,7 @@ void RtpTransceiverRelease(void *transceiver);
 
 void *RtpReceiverGetTrack(void *receiver);
 void RtpReceiverGetStreams(void *receiver, size_t *size, void **array);
-void RtpReceiverGetParameters(void *receiver, void *parameters);
+void RtpReceiverGetParameters(void *receiver, raw_rtp_parameters_t *parameters);
 void RtpReceiverGetStats(void *receiver, void *stats);
 void RtpReceiverRelease(void *receiver);
 
@@ -83,9 +83,12 @@ int RtpSenderSetTrack(void *sender, void *track);
 void *RtpSenderGetTrack(void *sender);
 void RtpSenderSetStreams(void *sender, size_t size, const char **stream_ids);
 void RtpSenderGetStreams(void *sender, size_t *size, void **array);
-void RtpSenderSetParameters(void *sender, void *parameters);
-void RtpSenderGetParameters(void *sender, void *parameters);
+void RtpSenderSetParameters(void *sender, raw_rtp_parameters_t *parameters, raw_rtc_error_t *err);
+void RtpSenderGetParameters(void *sender, raw_rtp_parameters_t *parameters);
 void RtpSenderGetStats(void *sender, void *stats);
 void RtpSenderRelease(void *sender);
+
+void RtpCodecCapabilityRelease(void *capability);
+void RtpCodecParametersRelease(void *parameters);
 
 #endif // RAWRTC_API_H_
