@@ -1,6 +1,6 @@
 # webrtc
 
-This is a CGO implementation of the WebRTC API, for [OMS](https://github.com/oddcancer/oms), which is WebRTC SFU.
+This is a CGO implementation of the WebRTC API, for [OMS](https://github.com/oddengine/oms), which is WebRTC SFU.
 
 ## Note
 
