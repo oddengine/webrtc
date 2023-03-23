@@ -1,6 +1,6 @@
 # webrtc
 
-This is a CGO implementation of the WebRTC API, for [OMS](https://github.com/oddengine/oms), which is WebRTC SFU.
+This is a CGO implementation of the WebRTC API, which allowing to build WebRTC-SFU in Golang. [OMS](https://oddengine.com/product/rtc.html) is based on this project.
 
 ## Note
 
